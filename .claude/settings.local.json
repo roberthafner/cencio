@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(python3 -m pip install tree-sitter tree-sitter-go)",
+      "Bash(/Users/rob/ws/cencio/.venv/bin/pip install *)",
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(.venv/bin/pip install *)",
+      "Bash(.venv/bin/python -c \"from src.parsing.go_parser import parse_file; print\\('go_parser import OK'\\)\")",
+      "Bash(.venv/bin/pytest --collect-only)",
+      "Bash(.venv/bin/pytest tests/unit/parsing/test_package.py -v)",
+      "Bash(.venv/bin/pytest tests/unit/parsing/test_block.py -v)",
+      "Bash(.venv/bin/pytest tests/unit/parsing/test_function.py -v)",
+      "Bash(.venv/bin/pytest tests/unit/parsing/ -q)",
+      "Bash(.venv/bin/pytest tests/unit/parsing/ -v --tb=short)"
+    ]
+  }
+}
