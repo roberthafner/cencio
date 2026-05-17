@@ -189,17 +189,23 @@ class ChunkStore:
         ).fetchone()
         return row[0]
 
-    def semantic_search(self, query: str, top_k: int = 10) -> list[dict]:
+    def semantic_search(
+        self, query: str, top_k: int = 10, repo_name: str | None = None
+    ) -> list[dict]:
         count = self._collection.count()
         n = min(top_k, count)
         if n == 0:
             return []
 
-        results = self._collection.query(
+        kwargs: dict = dict(
             query_texts=[query],
             n_results=n,
             include=["metadatas", "documents", "distances"],
         )
+        if repo_name is not None:
+            kwargs["where"] = {"repo_name": repo_name}
+
+        results = self._collection.query(**kwargs)
         return [
             {
                 "id": id_,
@@ -215,17 +221,31 @@ class ChunkStore:
             )
         ]
 
-    def keyword_search(self, query: str, top_k: int = 10) -> list[dict]:
-        rows = self._db.execute(
-            "SELECT chunk_id, rank FROM chunks_fts"
-            " WHERE chunks_fts MATCH ? ORDER BY rank LIMIT ?",
-            (query, top_k),
-        ).fetchall()
+    def keyword_search(
+        self, query: str, top_k: int = 10, repo_name: str | None = None
+    ) -> list[dict]:
+        if repo_name is not None:
+            rows = self._db.execute(
+                "SELECT chunk_id, rank FROM chunks_fts"
+                " WHERE chunks_fts MATCH ?"
+                "   AND chunk_id IN"
+                "       (SELECT chunk_id FROM chunk_file_map WHERE repo_name = ?)"
+                " ORDER BY rank LIMIT ?",
+                (query, repo_name, top_k),
+            ).fetchall()
+        else:
+            rows = self._db.execute(
+                "SELECT chunk_id, rank FROM chunks_fts"
+                " WHERE chunks_fts MATCH ? ORDER BY rank LIMIT ?",
+                (query, top_k),
+            ).fetchall()
         return [{"id": row["chunk_id"], "rank": row["rank"]} for row in rows]
 
-    def hybrid_search(self, query: str, top_k: int = 10) -> list[dict]:
-        semantic = self.semantic_search(query, top_k)
-        keyword = self.keyword_search(query, top_k)
+    def hybrid_search(
+        self, query: str, top_k: int = 10, repo_name: str | None = None
+    ) -> list[dict]:
+        semantic = self.semantic_search(query, top_k, repo_name)
+        keyword = self.keyword_search(query, top_k, repo_name)
 
         scores: dict[str, float] = {}
         for rank, result in enumerate(semantic):
@@ -235,13 +255,24 @@ class ChunkStore:
             id_ = result["id"]
             scores[id_] = scores.get(id_, 0.0) + 1.0 / (_RRF_K + rank + 1)
 
-        all_results = {r["id"]: r for r in semantic}
-        for r in keyword:
-            if r["id"] not in all_results:
-                all_results[r["id"]] = r
-
         ranked_ids = sorted(scores, key=lambda i: scores[i], reverse=True)[:top_k]
-        return [all_results[id_] for id_ in ranked_ids]
+
+        # Build result map; semantic results already carry full metadata
+        result_by_id = {r["id"]: r for r in semantic}
+
+        # Fetch metadata from ChromaDB for any keyword-only hits
+        missing = [id_ for id_ in ranked_ids if id_ not in result_by_id]
+        if missing:
+            fetched = self._collection.get(
+                ids=missing,
+                include=["metadatas", "documents"],
+            )
+            for id_, meta, doc in zip(
+                fetched["ids"], fetched["metadatas"], fetched["documents"]
+            ):
+                result_by_id[id_] = {"id": id_, "metadata": meta, "content": doc}
+
+        return [result_by_id[id_] for id_ in ranked_ids if id_ in result_by_id]
 
     def close(self) -> None:
         self._db.close()

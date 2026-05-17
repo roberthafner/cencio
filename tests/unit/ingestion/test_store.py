@@ -224,3 +224,49 @@ def test_hybrid_search_returns_results(store):
 def test_hybrid_search_empty_store_returns_empty(store):
     results = store.hybrid_search("anything")
     assert results == []
+
+
+def test_hybrid_search_results_have_metadata(store):
+    # Upsert a chunk that matches keyword search but not semantic search
+    # by ensuring semantic returns nothing (empty store path won't work here,
+    # so we verify all returned results carry metadata and content).
+    chunks = [_make_chunk("FindUser", "func FindUser(id string) *User { return nil }")]
+    store.upsert_chunks(chunks, "myrepo", "main.go")
+
+    results = store.hybrid_search("FindUser")
+    assert len(results) >= 1
+    for r in results:
+        assert "metadata" in r
+        assert "content" in r
+        assert r["metadata"]["name"] == "FindUser"
+
+
+# ------------------------------------------------------------------
+# repo_name filter
+# ------------------------------------------------------------------
+
+def test_semantic_search_filters_by_repo(store):
+    store.upsert_chunks([_make_chunk("Foo", "func Foo() {}", "a.go")], "repo_a", "a.go")
+    store.upsert_chunks([_make_chunk("Bar", "func Bar() {}", "b.go")], "repo_b", "b.go")
+
+    results = store.semantic_search("function", top_k=10, repo_name="repo_a")
+    assert all(r["metadata"]["repo_name"] == "repo_a" for r in results)
+
+
+def test_keyword_search_filters_by_repo(store):
+    store.upsert_chunks([_make_chunk("FooA", "func FooA() {}", "a.go")], "repo_a", "a.go")
+    store.upsert_chunks([_make_chunk("FooB", "func FooB() {}", "b.go")], "repo_b", "b.go")
+
+    results = store.keyword_search("FooA", repo_name="repo_a")
+    assert len(results) == 1
+
+    results = store.keyword_search("FooB", repo_name="repo_a")
+    assert len(results) == 0
+
+
+def test_hybrid_search_filters_by_repo(store):
+    store.upsert_chunks([_make_chunk("Foo", "func Foo() {}", "a.go")], "repo_a", "a.go")
+    store.upsert_chunks([_make_chunk("Bar", "func Bar() {}", "b.go")], "repo_b", "b.go")
+
+    results = store.hybrid_search("function", top_k=10, repo_name="repo_a")
+    assert all(r["metadata"]["repo_name"] == "repo_a" for r in results)

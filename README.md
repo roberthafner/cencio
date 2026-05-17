@@ -74,9 +74,43 @@ Options:
 | `--chroma-path` | `data/vector_store/chroma` | ChromaDB storage directory |
 | `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
-| `--model` | `nomic-embed-text-v1.5` | Embedding model name |
+| `--model` | `nomic-embed-text:v1.5` | Embedding model name |
 
 Re-running `ingest.py` is safe and efficient — only changed files are re-indexed.
+
+### Query the Index
+
+```bash
+python scripts/query.py "how does authentication work"
+```
+
+Options:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
+| `--top-k` | `5` | Number of results to return |
+| `--repo` | *(all repos)* | Filter results to a specific repository name |
+| `--chroma-path` | `data/vector_store/chroma` | ChromaDB storage directory |
+| `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
+| `--ollama-url` | `http://localhost:11434` | Ollama server URL |
+| `--model` | `nomic-embed-text:v1.5` | Embedding model name |
+
+Examples:
+
+```bash
+# Hybrid search (default) — best of semantic + keyword
+python scripts/query.py "error handling middleware"
+
+# Semantic only
+python scripts/query.py "user authentication" --mode semantic --top-k 10
+
+# Keyword only — no Ollama required
+python scripts/query.py "FindUserByID" --mode keyword
+
+# Filter to one repo
+python scripts/query.py "context propagation" --repo my-project
+```
 
 ### Running Tests
 
@@ -105,7 +139,8 @@ cencio/
 │   ├── repos/                # Cloned git repositories (created at runtime)
 │   └── vector_store/         # ChromaDB and SQLite index (created at runtime)
 ├── scripts/
-│   └── ingest.py             # CLI: clone/pull repos and run incremental indexing
+│   ├── ingest.py             # CLI: clone/pull repos and run incremental indexing
+│   └── query.py              # CLI: search the index (hybrid, semantic, or keyword)
 ├── src/
 │   ├── embedding/
 │   │   └── ollama.py         # EmbeddingFunction protocol + OllamaEmbeddingFunction
