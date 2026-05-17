@@ -43,3 +43,6 @@ data/repos/
 .idea/
 .vscode/
 .zed/
+
+# Claude Code
+.claude/
