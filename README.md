@@ -112,6 +112,85 @@ python scripts/query.py "FindUserByID" --mode keyword
 python scripts/query.py "context propagation" --repo my-project
 ```
 
+### Evaluating Retrieval Quality
+
+Cencio includes an evaluation harness that measures how well the search pipeline retrieves the right code chunks. It uses a **golden set** — a JSON file of natural-language queries paired with the chunk each query is expected to find.
+
+#### Generate the golden set
+
+The golden set is generated automatically by sampling chunks from the index and prompting a local chat model to write a realistic search query for each one. This requires the integration test index to already exist (run `pytest tests/integration/` first).
+
+```bash
+python scripts/generate_golden_set.py
+```
+
+Options:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--repo` | `gorilla-mux` | Repository name as stored in the index |
+| `--chat-model` | `devstral-small-2:latest` | Ollama chat model used to write queries |
+| `--embed-model` | `nomic-embed-text:v1.5` | Ollama embedding model |
+| `--ollama-url` | `http://localhost:11434` | Ollama server URL |
+| `--samples-per-type` | `5` | Chunks sampled per chunk type |
+| `--output` | `tests/evaluation/golden_mux.json` | Output path |
+| `--seed` | `42` | Random seed for reproducible sampling |
+
+Any Ollama chat model works. Larger or code-focused models (e.g. `devstral-small-2`, `qwen3`) produce more precise queries and a more demanding golden set.
+
+The generated file is committed to the repository so the baseline is stable across runs. Re-generate only when you want to refresh the evaluation set (e.g. after a schema change or to add more queries).
+
+#### Run the evaluation
+
+```bash
+python scripts/evaluate.py
+```
+
+Options:
+
+| Flag | Default | Description |
+|---|---|---|
+| `--golden-set` | `tests/evaluation/golden_mux.json` | Path to the golden set |
+| `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
+| `--top-k` | `5` | Number of results retrieved per query |
+| `--embed-model` | `nomic-embed-text:v1.5` | Ollama embedding model |
+| `--ollama-url` | `http://localhost:11434` | Ollama server URL |
+
+Examples:
+
+```bash
+# Evaluate hybrid search (default)
+python scripts/evaluate.py
+
+# Compare semantic search at top-10
+python scripts/evaluate.py --mode semantic --top-k 10
+
+# Evaluate keyword-only (no Ollama required)
+python scripts/evaluate.py --mode keyword
+```
+
+#### Interpreting the report
+
+```
+============================================================
+  Evaluation Report  —  mode=hybrid  top_k=5
+============================================================
+  Queries :  45
+  Hit rate:  84%  (38/45 found in top-5)
+  MRR     :  0.701
+  ...
+```
+
+**Hit rate** — the percentage of queries where the expected chunk appeared somewhere in the top-k results. This measures recall: did we find the right answer at all?
+
+**MRR (Mean Reciprocal Rank)** — the average of 1/rank for each query. A result ranked #1 scores 1.0, #2 scores 0.5, #3 scores 0.33, and so on. Misses score 0. This measures precision: not just whether we found it, but how high it was ranked. MRR closer to 1.0 means the right chunk consistently appears near the top.
+
+**How to use the numbers:**
+
+- Run the evaluation before and after a change (parser improvement, embedding strategy, RRF tuning). A higher hit rate and MRR indicate the change helped.
+- The per-type breakdown shows which chunk types are hardest to retrieve — useful for targeting parser or embedding improvements.
+- The "Misses" section lists every query that returned no correct result, with the query text, so you can inspect whether the query was ambiguous or the retrieval genuinely failed.
+
 ### Running Tests
 
 Run all unit tests:
@@ -160,27 +239,35 @@ cencio/
 │   ├── repos/                # Cloned git repositories (created at runtime)
 │   └── vector_store/         # ChromaDB and SQLite index (created at runtime)
 ├── scripts/
-│   ├── ingest.py             # CLI: clone/pull repos and run incremental indexing
-│   └── query.py              # CLI: search the index (hybrid, semantic, or keyword)
+│   ├── ingest.py                 # CLI: clone/pull repos and run incremental indexing
+│   ├── query.py                  # CLI: search the index (hybrid, semantic, or keyword)
+│   ├── generate_golden_set.py    # CLI: generate the retrieval evaluation golden set
+│   └── evaluate.py               # CLI: run evaluation and print hit rate + MRR report
 ├── src/
 │   ├── embedding/
-│   │   └── ollama.py         # EmbeddingFunction protocol + OllamaEmbeddingFunction
+│   │   └── ollama.py             # EmbeddingFunction protocol + OllamaEmbeddingFunction
+│   ├── evaluation/
+│   │   ├── ollama_chat.py        # ChatFunction protocol + OllamaChatFunction
+│   │   ├── golden_set.py         # Golden set generation and persistence
+│   │   └── harness.py            # Evaluation logic: hit rate and MRR
 │   ├── ingestion/
-│   │   ├── indexer.py        # Incremental indexing orchestration
-│   │   ├── repository.py     # GitRepository: clone/pull, list Go files, content hashing
-│   │   └── store.py          # ChunkStore: ChromaDB + SQLite FTS5 + file tracking
+│   │   ├── indexer.py            # Incremental indexing orchestration
+│   │   ├── repository.py         # GitRepository: clone/pull, list Go files, content hashing
+│   │   └── store.py              # ChunkStore: ChromaDB + SQLite FTS5 + file tracking
 │   ├── models/
-│   │   └── chunk.py          # Chunk dataclass and ChunkType enum
+│   │   └── chunk.py              # Chunk dataclass and ChunkType enum
 │   └── parsing/
-│       └── go_parser.py      # tree-sitter based Go parser
+│       └── go_parser.py          # tree-sitter based Go parser
 └── tests/
     ├── data/
-    │   └── golang/           # Go source fixtures for parser tests
-    ├── integration/          # End-to-end tests (require Ollama + network)
+    │   └── golang/               # Go source fixtures for parser tests
+    ├── evaluation/
+    │   └── golden_mux.json       # Committed golden set for gorilla/mux
+    ├── integration/              # End-to-end tests (require Ollama + network)
     └── unit/
-        ├── embedding/        # Tests for OllamaEmbeddingFunction
-        ├── ingestion/        # Tests for repository, store, and indexer
-        └── parsing/          # Tests for the Go parser
+        ├── embedding/            # Tests for OllamaEmbeddingFunction
+        ├── ingestion/            # Tests for repository, store, and indexer
+        └── parsing/              # Tests for the Go parser
 ```
 
 ## 🛠 Built With

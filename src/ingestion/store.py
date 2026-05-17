@@ -274,5 +274,28 @@ class ChunkStore:
 
         return [result_by_id[id_] for id_ in ranked_ids if id_ in result_by_id]
 
+    def sample_chunks(
+        self,
+        repo_name: str,
+        chunk_type: str | None = None,
+        limit: int = 20,
+    ) -> list[dict]:
+        where: dict = (
+            {"$and": [{"repo_name": repo_name}, {"chunk_type": chunk_type}]}
+            if chunk_type is not None
+            else {"repo_name": repo_name}
+        )
+        result = self._collection.get(
+            where=where,
+            limit=limit,
+            include=["metadatas", "documents"],
+        )
+        return [
+            {"id": id_, "content": doc, "metadata": meta}
+            for id_, doc, meta in zip(
+                result["ids"], result["documents"], result["metadatas"]
+            )
+        ]
+
     def close(self) -> None:
         self._db.close()
