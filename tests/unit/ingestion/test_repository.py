@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from src.ingestion.repository import GitRepository
+from src.ingestion.repository import GitRepository, RepositoryError
 
 
 def _make_git_repo(path: Path, branch: str = "main") -> None:
@@ -128,6 +128,48 @@ def test_clone_creates_directory(tmp_path):
 
     assert clone_path.exists()
     assert (clone_path / "main.go").exists()
+
+
+def test_clone_bad_url_raises_repository_error(tmp_path):
+    repo = GitRepository(
+        "myrepo", "file:///nonexistent/path/to/repo", "main", tmp_path / "clone"
+    )
+    with pytest.raises(RepositoryError) as exc_info:
+        repo.clone_or_pull()
+
+    assert "myrepo" in str(exc_info.value)
+    assert "clone" in str(exc_info.value)
+
+
+def test_repository_error_wraps_called_process_error(tmp_path):
+    repo = GitRepository(
+        "myrepo", "file:///nonexistent/path/to/repo", "main", tmp_path / "clone"
+    )
+    with pytest.raises(RepositoryError) as exc_info:
+        repo.clone_or_pull()
+
+    assert exc_info.value.__cause__ is not None
+    assert isinstance(exc_info.value.__cause__, subprocess.CalledProcessError)
+
+
+def test_pull_bad_remote_raises_repository_error(tmp_path):
+    # Clone a valid repo, then break its remote URL
+    source = tmp_path / "source"
+    _make_git_repo(source)
+    clone_path = tmp_path / "clone"
+    repo = GitRepository("myrepo", str(source), "main", clone_path)
+    repo.clone_or_pull()
+
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", "file:///nonexistent"],
+        cwd=str(clone_path), check=True, capture_output=True,
+    )
+
+    with pytest.raises(RepositoryError) as exc_info:
+        repo.clone_or_pull()
+
+    assert "myrepo" in str(exc_info.value)
+    assert "pull" in str(exc_info.value)
 
 
 def test_pull_fetches_new_commits(tmp_path):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from src.embedding.ollama import OllamaEmbeddingFunction
@@ -39,6 +40,7 @@ def main() -> None:
     )
     indexer = Indexer(store)
 
+    failed: list[str] = []
     try:
         for repo_config in config["repositories"]:
             repo = GitRepository(
@@ -47,11 +49,22 @@ def main() -> None:
                 branch=repo_config["branch"],
                 clone_path=Path(repo_config["clone_path"]),
             )
-            print(f"Indexing {repo.name}...")
-            indexer.index_repository(repo)
-            print(f"Done: {repo.name}")
+            print(f"[{repo.name}] Indexing...")
+            try:
+                indexer.index_repository(repo)
+                print(f"[{repo.name}] Done.")
+            except Exception as e:
+                print(f"[{repo.name}] Error: {e}", file=sys.stderr)
+                failed.append(repo.name)
     finally:
         store.close()
+
+    if failed:
+        print(
+            f"\n{len(failed)} repo(s) failed: {', '.join(failed)}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
