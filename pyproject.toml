@@ -22,7 +22,10 @@ where = ["."]
 include = ["src*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests/unit"]
+markers = [
+    "integration: marks tests requiring network access and a running Ollama instance",
+]
 filterwarnings = [
     "ignore::DeprecationWarning:chromadb",
 ]

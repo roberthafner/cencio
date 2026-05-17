@@ -114,7 +114,7 @@ python scripts/query.py "context propagation" --repo my-project
 
 ### Running Tests
 
-Run all tests:
+Run all unit tests:
 ```bash
 .venv/bin/pytest
 ```
@@ -129,10 +129,31 @@ Run parsing tests only:
 .venv/bin/pytest tests/unit/parsing/
 ```
 
+### Running Integration Tests
+
+Integration tests index a real repository (gorilla/mux) and require:
+- Network access to clone from GitHub (`git@github.com:gorilla/mux.git`)
+- Ollama running locally with `nomic-embed-text:v1.5` pulled
+
+```bash
+ollama pull nomic-embed-text:v1.5
+.venv/bin/pytest tests/integration/
+```
+
+On the first run, gorilla/mux is cloned to `build/data/repos/gorilla-mux` and indexed into `build/database/`. Subsequent runs reuse both, so only changed files are re-indexed and the embedding step is skipped entirely.
+
+To force a full re-clone and re-index (e.g. after a schema change):
+```bash
+.venv/bin/pytest tests/integration/ --clean
+```
+
 ## 📂 Project Structure
 
 ```text
 cencio/
+├── build/                        # Runtime artifacts (gitignored)
+│   ├── data/repos/               # Repositories cloned by integration tests
+│   └── database/                 # ChromaDB and SQLite index for integration tests
 ├── configs/
 │   └── repositories.json     # List of Go repos to index (name, url, branch, clone_path)
 ├── data/
@@ -155,7 +176,9 @@ cencio/
 └── tests/
     ├── data/
     │   └── golang/           # Go source fixtures for parser tests
+    ├── integration/          # End-to-end tests (require Ollama + network)
     └── unit/
+        ├── embedding/        # Tests for OllamaEmbeddingFunction
         ├── ingestion/        # Tests for repository, store, and indexer
         └── parsing/          # Tests for the Go parser
 ```

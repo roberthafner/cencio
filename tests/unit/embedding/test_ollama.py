@@ -137,6 +137,72 @@ def test_batch_input_returns_one_embedding_per_text():
 
 
 # ------------------------------------------------------------------
+# Batching
+# ------------------------------------------------------------------
+
+def test_default_batch_size():
+    fn = OllamaEmbeddingFunction()
+    assert fn._batch_size == 32
+
+
+def test_custom_batch_size():
+    fn = OllamaEmbeddingFunction(batch_size=8)
+    assert fn._batch_size == 8
+
+
+def test_default_max_chars():
+    fn = OllamaEmbeddingFunction()
+    assert fn._max_chars == 4000
+
+
+def test_inputs_truncated_to_max_chars():
+    fn = OllamaEmbeddingFunction(max_chars=5)
+    mock = MagicMock(return_value=_mock_urlopen([[0.1]]))
+    with patch("urllib.request.urlopen", mock):
+        fn(["hello world"])
+    req = mock.call_args[0][0]
+    assert json.loads(req.data)["input"] == ["hello"]
+
+
+def test_single_batch_when_inputs_fit():
+    fn = OllamaEmbeddingFunction(batch_size=4)
+    texts = ["a", "b", "c"]
+    embeddings = [[float(i)] * 2 for i in range(3)]
+    mock = MagicMock(return_value=_mock_urlopen(embeddings))
+    with patch("urllib.request.urlopen", mock):
+        fn(texts)
+    assert mock.call_count == 1
+
+
+def test_multiple_batches_when_inputs_exceed_batch_size():
+    fn = OllamaEmbeddingFunction(batch_size=2)
+    texts = ["a", "b", "c", "d", "e"]
+    batch_embeddings = [
+        [[0.1, 0.2], [0.3, 0.4]],
+        [[0.5, 0.6], [0.7, 0.8]],
+        [[0.9, 1.0]],
+    ]
+    mock = MagicMock(side_effect=[_mock_urlopen(b) for b in batch_embeddings])
+    with patch("urllib.request.urlopen", mock):
+        result = fn(texts)
+    assert mock.call_count == 3
+    assert result == [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6], [0.7, 0.8], [0.9, 1.0]]
+
+
+def test_batch_payloads_contain_correct_inputs():
+    fn = OllamaEmbeddingFunction(batch_size=2)
+    texts = ["a", "b", "c"]
+    batch_embeddings = [[[0.1], [0.2]], [[0.3]]]
+    mock = MagicMock(side_effect=[_mock_urlopen(b) for b in batch_embeddings])
+    with patch("urllib.request.urlopen", mock):
+        fn(texts)
+    first_req = mock.call_args_list[0][0][0]
+    second_req = mock.call_args_list[1][0][0]
+    assert json.loads(first_req.data)["input"] == ["a", "b"]
+    assert json.loads(second_req.data)["input"] == ["c"]
+
+
+# ------------------------------------------------------------------
 # Protocol conformance
 # ------------------------------------------------------------------
 
