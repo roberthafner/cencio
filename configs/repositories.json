@@ -1,0 +1,10 @@
+{
+  "repositories": [
+    {
+      "name": "example-project",
+      "url": "https://github.com/example/example-project",
+      "branch": "main",
+      "clone_path": "data/repos/example-project"
+    }
+  ]
+}

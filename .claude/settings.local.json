@@ -12,7 +12,17 @@
       "Bash(.venv/bin/pytest tests/unit/parsing/test_block.py -v)",
       "Bash(.venv/bin/pytest tests/unit/parsing/test_function.py -v)",
       "Bash(.venv/bin/pytest tests/unit/parsing/ -q)",
-      "Bash(.venv/bin/pytest tests/unit/parsing/ -v --tb=short)"
+      "Bash(.venv/bin/pytest tests/unit/parsing/ -v --tb=short)",
+      "Bash(git -C /Users/rob/ws/cencio diff --staged --stat)",
+      "Bash(grep -E '\\\\.\\(py|yaml|yml|json|toml|md|txt\\)$')",
+      "Bash(pip3 install *)",
+      "Bash(python3 -m pytest tests/unit/ingestion/ -x --tb=short)",
+      "Bash(pytest --version)",
+      "Bash(python3 -c \"import chromadb; print\\('chromadb ok'\\)\")",
+      "Bash(find /Users/rob -name \"pytest\" -type f 2>/dev/null | head -5; find /usr/local /opt -name \"pytest\" -type f 2>/dev/null | head -5)",
+      "Bash(.venv/bin/python -c \"import chromadb; print\\('chromadb', chromadb.__version__\\)\")",
+      "Bash(.venv/bin/pytest tests/unit/ingestion/ -x --tb=short)",
+      "Bash(.venv/bin/pytest --tb=short)"
     ]
   }
 }
