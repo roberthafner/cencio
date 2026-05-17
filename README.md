@@ -112,6 +112,41 @@ python scripts/query.py "FindUserByID" --mode keyword
 python scripts/query.py "context propagation" --repo my-project
 ```
 
+### Inspecting Chunks
+
+`show.py` lets you browse the raw content of indexed chunks from ChromaDB and SQLite without truncation. Useful for debugging retrieval misses or reviewing what got indexed.
+
+```bash
+python scripts/show.py --repo gorilla-mux --name WalkFunc
+```
+
+At least one filter is required. Filters can be combined (AND logic):
+
+| Flag | Description |
+|---|---|
+| `--id ID` | Exact chunk ID |
+| `--name STR` | Substring match on symbol name |
+| `--repo NAME` | Exact repository name |
+| `--file STR` | Substring match on file path |
+| `--type TYPE` | Chunk type: `package`, `block`, `function`, `method`, `struct`, `interface`, `const`, `var`, `type_alias` |
+| `--package STR` | Substring match on package name |
+| `--limit N` | Max chunks to display (default: 20) |
+
+Examples:
+
+```bash
+# All functions in a test file
+python scripts/show.py --repo gorilla-mux --file mux_test.go --type function
+
+# All type aliases in a repo
+python scripts/show.py --repo gorilla-mux --type type_alias
+
+# Look up a chunk directly by ID (e.g. from evaluation miss output)
+python scripts/show.py --id 4186ed572baa1c6f475336a915f3426b1089601579b183892d6a1f53a8d38b5e
+```
+
+Each result shows the full untruncated content from ChromaDB, plus the `doc` and `signature` fields from SQLite.
+
 ### Evaluating Retrieval Quality
 
 Cencio includes an evaluation harness that measures how well the search pipeline retrieves the right code chunks. It uses a **golden set** — a JSON file of natural-language queries paired with the chunk each query is expected to find.
@@ -242,7 +277,8 @@ cencio/
 │   ├── ingest.py                 # CLI: clone/pull repos and run incremental indexing
 │   ├── query.py                  # CLI: search the index (hybrid, semantic, or keyword)
 │   ├── generate_golden_set.py    # CLI: generate the retrieval evaluation golden set
-│   └── evaluate.py               # CLI: run evaluation and print hit rate + MRR report
+│   ├── evaluate.py               # CLI: run evaluation and print hit rate + MRR report
+│   └── show.py                   # CLI: inspect indexed chunks from ChromaDB and SQLite
 ├── src/
 │   ├── embedding/
 │   │   └── ollama.py             # EmbeddingFunction protocol + OllamaEmbeddingFunction
