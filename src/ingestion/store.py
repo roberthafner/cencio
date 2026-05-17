@@ -9,6 +9,7 @@ from src.models.chunk import Chunk
 
 _COLLECTION_NAME = "chunks"
 _RRF_K = 60
+_RRF_KEYWORD_WEIGHT = 1.0
 
 _STOP_WORDS = frozenset({
     "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
@@ -266,7 +267,11 @@ class ChunkStore:
         return [{"id": row["chunk_id"], "rank": row["rank"]} for row in rows]
 
     def hybrid_search(
-        self, query: str, top_k: int = 10, repo_name: str | None = None
+        self,
+        query: str,
+        top_k: int = 10,
+        repo_name: str | None = None,
+        keyword_weight: float = _RRF_KEYWORD_WEIGHT,
     ) -> list[dict]:
         semantic = self.semantic_search(query, top_k, repo_name)
         keyword = self.keyword_search(query, top_k, repo_name)
@@ -277,7 +282,7 @@ class ChunkStore:
             scores[id_] = scores.get(id_, 0.0) + 1.0 / (_RRF_K + rank + 1)
         for rank, result in enumerate(keyword):
             id_ = result["id"]
-            scores[id_] = scores.get(id_, 0.0) + 1.0 / (_RRF_K + rank + 1)
+            scores[id_] = scores.get(id_, 0.0) + keyword_weight / (_RRF_K + rank + 1)
 
         ranked_ids = sorted(scores, key=lambda i: scores[i], reverse=True)[:top_k]
 

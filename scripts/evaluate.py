@@ -28,6 +28,8 @@ def main() -> None:
                         help="Search mode to evaluate (default: hybrid)")
     parser.add_argument("--top-k", type=int, default=5,
                         help="Number of results to retrieve per query (default: 5)")
+    parser.add_argument("--keyword-weight", type=float, default=1.0, metavar="W",
+                        help="RRF weight for keyword results relative to semantic (default: 1.0)")
     parser.add_argument("--embed-model", default="nomic-embed-text:v1.5")
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--chroma-path", type=Path, default=_DEFAULT_CHROMA)
@@ -50,7 +52,8 @@ def main() -> None:
     )
 
     try:
-        report = evaluate(store, golden_set, mode=args.mode, top_k=args.top_k)
+        report = evaluate(store, golden_set, mode=args.mode, top_k=args.top_k,
+                          keyword_weight=args.keyword_weight)
     finally:
         store.close()
 

@@ -188,6 +188,7 @@ Options:
 | `--golden-set` | `tests/evaluation/golden_mux.json` | Path to the golden set |
 | `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
 | `--top-k` | `5` | Number of results retrieved per query |
+| `--keyword-weight` | `1.0` | RRF weight for keyword results relative to semantic (hybrid mode only) |
 | `--embed-model` | `nomic-embed-text:v1.5` | Ollama embedding model |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
 

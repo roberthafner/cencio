@@ -58,6 +58,7 @@ def evaluate(
     golden_set: list[dict],
     mode: str = "hybrid",
     top_k: int = 5,
+    keyword_weight: float = 1.0,
 ) -> EvaluationReport:
     results: list[QueryResult] = []
 
@@ -67,7 +68,8 @@ def evaluate(
         repo_name = entry.get("repo_name")
 
         if mode == "hybrid":
-            hits = store.hybrid_search(query, top_k=top_k, repo_name=repo_name)
+            hits = store.hybrid_search(query, top_k=top_k, repo_name=repo_name,
+                                       keyword_weight=keyword_weight)
         elif mode == "semantic":
             hits = store.semantic_search(query, top_k=top_k, repo_name=repo_name)
         elif mode == "keyword":
