@@ -1,3 +1,4 @@
+import re
 import sqlite3
 from pathlib import Path
 
@@ -8,6 +9,28 @@ from src.models.chunk import Chunk
 
 _COLLECTION_NAME = "chunks"
 _RRF_K = 60
+
+_STOP_WORDS = frozenset({
+    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+    "of", "with", "by", "from", "is", "are", "was", "were", "be", "been",
+    "being", "have", "has", "had", "do", "does", "did", "will", "would",
+    "could", "should", "may", "might", "shall", "can", "not", "no",
+    "how", "what", "when", "where", "why", "which", "who", "whom",
+    "this", "that", "these", "those", "it", "its",
+})
+
+
+def _to_fts_query(text: str) -> str:
+    """Convert a natural-language string to a FTS5 OR expression.
+
+    FTS5 MATCH treats a bare phrase as an AND of all terms, so any single
+    word absent from the corpus (e.g. "wraps") causes zero results.
+    OR-joining the meaningful tokens avoids that failure mode while still
+    letting BM25 rank chunks that match more terms higher.
+    """
+    tokens = re.findall(r"[A-Za-z0-9]+", text)
+    terms = [t for t in tokens if t.lower() not in _STOP_WORDS and len(t) > 1]
+    return " OR ".join(terms) if terms else text
 
 
 class _ChromaEmbeddingAdapter:
@@ -224,6 +247,7 @@ class ChunkStore:
     def keyword_search(
         self, query: str, top_k: int = 10, repo_name: str | None = None
     ) -> list[dict]:
+        fts_query = _to_fts_query(query)
         if repo_name is not None:
             rows = self._db.execute(
                 "SELECT chunk_id, rank FROM chunks_fts"
@@ -231,13 +255,13 @@ class ChunkStore:
                 "   AND chunk_id IN"
                 "       (SELECT chunk_id FROM chunk_file_map WHERE repo_name = ?)"
                 " ORDER BY rank LIMIT ?",
-                (query, repo_name, top_k),
+                (fts_query, repo_name, top_k),
             ).fetchall()
         else:
             rows = self._db.execute(
                 "SELECT chunk_id, rank FROM chunks_fts"
                 " WHERE chunks_fts MATCH ? ORDER BY rank LIMIT ?",
-                (query, top_k),
+                (fts_query, top_k),
             ).fetchall()
         return [{"id": row["chunk_id"], "rank": row["rank"]} for row in rows]
 

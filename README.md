@@ -18,7 +18,7 @@ Instead of just dumping raw text into a vector database, Cencio understands the 
 ## ✨ Key Features
 - **Go-Native Parsing**: Uses tree-sitter to semantically parse Go source files into typed chunks — packages, functions, methods, structs, interfaces, consts, vars, blocks, and type aliases.
 - **Incremental Indexing**: Re-indexes only files that changed since the last run. New, modified, and deleted files are handled automatically. Unchanged files are skipped entirely, making re-indexing fast enough for CI or unit tests.
-- **Hybrid Search**: Combines semantic (vector) search via ChromaDB with keyword search via SQLite FTS5, merged with reciprocal rank fusion (RRF).
+- **Hybrid Search**: Combines semantic (vector) search via ChromaDB with keyword search via SQLite FTS5, merged with reciprocal rank fusion (RRF). Natural-language queries are preprocessed for FTS5 — stop words stripped, remaining terms OR-joined — so a single word absent from the corpus doesn't zero out keyword results.
 - **Pluggable Embeddings**: Defaults to `nomic-embed-text-v1.5` running locally via Ollama. Any callable matching the `EmbeddingFunction` protocol can be substituted.
 - **Struct–Method Linking**: Automatically wires methods to their parent struct via `parent_id` and `children_ids` for hierarchical traversal.
 
@@ -105,7 +105,7 @@ python scripts/query.py "error handling middleware"
 # Semantic only
 python scripts/query.py "user authentication" --mode semantic --top-k 10
 
-# Keyword only — no Ollama required
+# Keyword only — no Ollama required; queries are preprocessed for FTS5
 python scripts/query.py "FindUserByID" --mode keyword
 
 # Filter to one repo

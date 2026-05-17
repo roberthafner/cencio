@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.ingestion.store import ChunkStore
+from src.ingestion.store import ChunkStore, _to_fts_query
 from src.models.chunk import Chunk, ChunkType
 
 
@@ -150,8 +150,57 @@ def test_hashes_are_scoped_to_repo(store):
 
 
 # ------------------------------------------------------------------
+# _to_fts_query
+# ------------------------------------------------------------------
+
+def test_fts_query_strips_stop_words():
+    terms = _to_fts_query("how to find a user").split(" OR ")
+    assert "how" not in terms
+    assert "to" not in terms
+    assert "a" not in terms
+    assert "find" in terms
+    assert "user" in terms
+
+
+def test_fts_query_joins_with_or():
+    result = _to_fts_query("parse query parameters")
+    assert result == "parse OR query OR parameters"
+
+
+def test_fts_query_single_meaningful_term_has_no_or():
+    assert _to_fts_query("FindUser") == "FindUser"
+
+
+def test_fts_query_all_stop_words_falls_back_to_original():
+    original = "how to be"
+    assert _to_fts_query(original) == original
+
+
+def test_fts_query_filters_single_char_tokens():
+    terms = _to_fts_query("match a b c handler").split(" OR ")
+    assert "a" not in terms
+    assert "b" not in terms
+    assert "c" not in terms
+    assert "match" in terms
+    assert "handler" in terms
+
+
+# ------------------------------------------------------------------
 # keyword_search
 # ------------------------------------------------------------------
+
+def test_keyword_search_natural_language_query(store):
+    chunks = [_make_chunk(
+        "HandleMiddleware",
+        "// HandleMiddleware wraps an http.Handler with middleware logic.\n"
+        "func HandleMiddleware(h http.Handler) http.Handler { return h }",
+    )]
+    store.upsert_chunks(chunks, "myrepo", "main.go")
+
+    results = store.keyword_search("how to wrap an http handler")
+    assert len(results) >= 1
+    assert results[0]["id"] == chunks[0].id
+
 
 def test_keyword_search_finds_matching_chunk(store):
     chunks = [_make_chunk("FindUser", "func FindUser(id string) *User { return nil }")]
