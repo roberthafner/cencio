@@ -9,8 +9,8 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 from src.embedding.ollama import OllamaEmbeddingFunction
 from src.ingestion.store import ChunkStore
 
-_DEFAULT_CHROMA = _PROJECT_ROOT / "build" / "database" / "chroma"
-_DEFAULT_SQLITE = _PROJECT_ROOT / "build" / "database" / "index.db"
+_DEFAULT_CHROMA = _PROJECT_ROOT / "data" / "vector_store" / "chroma"
+_DEFAULT_SQLITE = _PROJECT_ROOT / "data" / "vector_store" / "index.db"
 _SEPARATOR = "─" * 72
 
 
