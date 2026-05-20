@@ -1,42 +1,10 @@
 [
   {
-    "query": "how to test gorilla mux routes in Go",
-    "chunk_id": "f8d0ea194d26e66d7222ca0fd2ce66ad9a53f5224cbb8772a2fcd778eec921da",
-    "chunk_name": "mux_test",
-    "chunk_type": "package",
-    "file_path": "example_route_test.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to import gorilla mux in go test files",
-    "chunk_id": "bbcc692517abd30bfd3993c2f418ed1a335a4dee9494020a115e759f9059c00f",
-    "chunk_name": "mux",
-    "chunk_type": "package",
-    "file_path": "middleware_test.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to find old tests in gorilla mux package",
-    "chunk_id": "8bd171de1d2fa52bced29f0059770d1f2d4cf6221fe77c177bc5359c4c2494dc",
-    "chunk_name": "mux",
-    "chunk_type": "package",
-    "file_path": "old_test.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to use gorilla mux to register URL paths and handlers with variables",
+    "query": "how to use gorilla mux to register URL paths and handlers",
     "chunk_id": "cef71eb586eccba4a20e29e07dd37e2f313c1a9db6f80f03c8d5d9fe4054416d",
     "chunk_name": "mux",
     "chunk_type": "package",
     "file_path": "doc.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to import gorilla mux in Go",
-    "chunk_id": "3ee36789206b14ccc06d50eb30724fda85d87da3ec9494d1aa5b218eb9cb34a5",
-    "chunk_name": "mux",
-    "chunk_type": "package",
-    "file_path": "test_helpers.go",
     "repo_name": "gorilla-mux"
   },
   {
@@ -48,6 +16,14 @@
     "repo_name": "gorilla-mux"
   },
   {
+    "query": "how to define regex types in gorilla mux",
+    "chunk_id": "4951287d548c60e2cd12fc3c83192cea7ed4accd9951efdb76c1cf26ff667475",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "regexp.go",
+    "repo_name": "gorilla-mux"
+  },
+  {
     "query": "how to access route variables in gorilla mux",
     "chunk_id": "6d943a9a5fc444823c254597511d85699cf314f1f200820c2b25ac6ecd210f50",
     "chunk_name": "",
@@ -56,123 +32,107 @@
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to define regex route types in gorilla mux",
-    "chunk_id": "4951287d548c60e2cd12fc3c83192cea7ed4accd9951efdb76c1cf26ff667475",
-    "chunk_name": "",
-    "chunk_type": "block",
-    "file_path": "regexp.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to test header matching in gorilla mux",
-    "chunk_id": "c3e0cc739be99080ef03bfb14bc90169efbaba9e30268c7298bd74057a967ee9",
-    "chunk_name": "TestHeaderMatcher",
-    "chunk_type": "function",
-    "file_path": "old_test.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to get the host from an http request in Go including port if specified",
-    "chunk_id": "28bcce5e77c677a69fded82fcdde44b2001a1942606e4072f1f1ea96f7bc495a",
-    "chunk_name": "getHost",
+    "query": "how to create named capture groups in gorilla mux regex",
+    "chunk_id": "1b03e9b3a84c8a79f069155e3e910f0cddcf66254f6297f1feafe0fd5e0b661d",
+    "chunk_name": "varGroupName",
     "chunk_type": "function",
     "file_path": "regexp.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to parse query parameters from a URL in Go",
-    "chunk_id": "dd79b9d409cd5a97403b33cbf573a80568e7bafa9ca1a21ce121d36a3068b33c",
-    "chunk_name": "findFirstQueryKey",
+    "query": "how to extract named variables from regex matches in Go",
+    "chunk_id": "04eb6ff875cdec262eb0dbaf107235710ab489daca3b841b060b63403d52e727",
+    "chunk_name": "extractVars",
     "chunk_type": "function",
     "file_path": "regexp.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "benchmark for query parameter parsing in gorilla mux",
-    "chunk_id": "98927fb60e38dfcd9299719785fd631a360a717216da1feaadb297cb63b9cf3f",
-    "chunk_name": "Benchmark_findQueryKeyGoLib",
+    "query": "how to find the positions of curly braces in a string in Go",
+    "chunk_id": "3e758ec6a0312e721e598c04850f00933a4ffb2b15a688fd8dbee242291a887f",
+    "chunk_name": "braceIndices",
     "chunk_type": "function",
-    "file_path": "regexp_test.go",
+    "file_path": "regexp.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to test path matching in gorilla mux with route variables",
-    "chunk_id": "d9a60bf2e3393d711484e19eade4374a685d2472ce84333cc508596730a2bf16",
-    "chunk_name": "TestPathMatcher",
+    "query": "how to add route variables to http request context in gorilla mux",
+    "chunk_id": "66bcf606641bc5498ce986eeb78fe24302346b9cd5f98b87f1fff649e84c54c0",
+    "chunk_name": "requestWithVars",
     "chunk_type": "function",
-    "file_path": "old_test.go",
+    "file_path": "mux.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to get the handler from a gorilla mux route",
-    "chunk_id": "eb407d78a9216bb1d79647aeb494d5ac379414a43b732a5903227da68862eccb",
-    "chunk_name": "GetHandler",
+    "query": "how to create a new router instance in gorilla mux",
+    "chunk_id": "5dece9edab493847f14ce0936456ff850b3195835ca7d4ccb45893921f26d006",
+    "chunk_name": "NewRouter",
+    "chunk_type": "function",
+    "file_path": "mux.go",
+    "repo_name": "gorilla-mux"
+  },
+  {
+    "query": "how to set a handler for a route in gorilla mux",
+    "chunk_id": "e7fff4241cf7bdec13a6bd765b50c6c7c2c3757a6999b32ea362ea071667b70d",
+    "chunk_name": "Handler",
     "chunk_type": "method",
     "file_path": "route.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to match HTTP headers with regex in gorilla mux",
-    "chunk_id": "effcea76c7b5b4871c1aebd4a5ae839c7b4dfb2011ff815f70bc885f5eca0a25",
-    "chunk_name": "Match",
+    "query": "how to create a route that only builds URLs without matching requests",
+    "chunk_id": "93534b850a9abde8eeaab754d8fef9ebdad99509ef963cb8710c5939bbc2a52e",
+    "chunk_name": "BuildOnly",
     "chunk_type": "method",
     "file_path": "route.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to get a value from route metadata in gorilla mux",
-    "chunk_id": "5e0685797c15e4179bf6779545d996b2c0dbbbf5919e34b69dc01738422dd6c1",
-    "chunk_name": "GetMetadataValue",
+    "query": "how to match query string in gorilla mux",
+    "chunk_id": "c8770fba9de039d9ff5039ed35aff2c47871a5bccfafde727919f64f8ee4e485",
+    "chunk_name": "matchQueryString",
+    "chunk_type": "method",
+    "file_path": "regexp.go",
+    "repo_name": "gorilla-mux"
+  },
+  {
+    "query": "how to check if a key exists in route metadata in gorilla mux",
+    "chunk_id": "be6a1d9955de6a2460b33c1c97ccf45f02e8e63af362d53d0c63d5afa014bda7",
+    "chunk_name": "MetadataContains",
     "chunk_type": "method",
     "file_path": "route.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to add a matcher to a route in gorilla mux",
-    "chunk_id": "558b98a08e1a35cc9143fae45d9c6a36abd7899cdca666d735a3680d3de9c089",
-    "chunk_name": "addMatcher",
+    "query": "how to get route metadata in gorilla mux",
+    "chunk_id": "6bd8282fcd8cccb835cc8fcf2f12ca0f7094fa288db44f0437129ff1c677837a",
+    "chunk_name": "GetMetadata",
     "chunk_type": "method",
     "file_path": "route.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to set a handler function for a route in gorilla mux",
-    "chunk_id": "e3693e53b3214048acc8d495be4dc5f64d2bf1185a03f4bbaf8d16b6f7bc3073",
-    "chunk_name": "HandlerFunc",
-    "chunk_type": "method",
-    "file_path": "route.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to test host matching in gorilla mux",
-    "chunk_id": "ea4edabced818323e58004dd0df3c375942a719c8aca7a259e75ecb4ef98444d",
-    "chunk_name": "hostMatcherTest",
+    "query": "how to define a route with handler and metadata in gorilla mux",
+    "chunk_id": "608cb76b2e1da65a7a80a2fc346fb06f091da1803a274fd7fcef32bdec4668ec",
+    "chunk_name": "Route",
     "chunk_type": "struct",
-    "file_path": "old_test.go",
+    "file_path": "route.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to record HTTP response in Go tests",
-    "chunk_id": "9c8950e91917f2866951e55eb00df619f745dabe21ba96db3ca82908e2aa7185",
-    "chunk_name": "ResponseRecorder",
+    "query": "how to match and validate route variables in gorilla mux",
+    "chunk_id": "0333bac81b42095552913c1f1043407c4e463d1995dbf0febb49a6317a811d45",
+    "chunk_name": "routeRegexp",
     "chunk_type": "struct",
-    "file_path": "old_test.go",
+    "file_path": "regexp.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to test handler matching for subrouters with HTTP methods in gorilla mux",
-    "chunk_id": "49c384534a5be244bdf083fcd88a533c6290589eeec04eb5af751a8f74de00f2",
-    "chunk_name": "methodsSubrouterTest",
+    "query": "how to get route match information in gorilla mux",
+    "chunk_id": "3413a720f5e05be5392e96d8cdc2edb34b153ea45f59d4bb1737ba25d859b6ab",
+    "chunk_name": "RouteMatch",
     "chunk_type": "struct",
-    "file_path": "mux_test.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to test method matching in gorilla mux",
-    "chunk_id": "49253fee025be9efee58f54007a3f27d9c59f11ebb49be4efaf615713249b7c4",
-    "chunk_name": "methodMatcherTest",
-    "chunk_type": "struct",
-    "file_path": "old_test.go",
+    "file_path": "mux.go",
     "repo_name": "gorilla-mux"
   },
   {
@@ -184,11 +144,11 @@
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to match http requests in gorilla mux",
-    "chunk_id": "48b535eecf486a608398a403193c0b0e2a4dbc8efda000a1b7c93193219249b7",
-    "chunk_name": "matcher",
-    "chunk_type": "interface",
-    "file_path": "route.go",
+    "query": "how to configure path matching behavior in gorilla mux router",
+    "chunk_id": "8bb5d207fc20feaf97f0dee44855256844292fe70a3d2d92929e813d5f99c8ce",
+    "chunk_name": "routeConf",
+    "chunk_type": "struct",
+    "file_path": "mux.go",
     "repo_name": "gorilla-mux"
   },
   {
@@ -200,19 +160,11 @@
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to test path matching with regex constraints in gorilla mux",
-    "chunk_id": "96705513534481409e5027f54ec046071fa4b813d611331cf0436037d00edbbd",
-    "chunk_name": "pathMatcherTests",
-    "chunk_type": "var",
-    "file_path": "old_test.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to test header matcher with empty headers in gorilla mux",
-    "chunk_id": "8afc44cb97f3f08eeae48f1e3ff2f2d0f6e636f21650fc07ecf5b5bb3ee8a077",
-    "chunk_name": "headerMatcherTests",
-    "chunk_type": "var",
-    "file_path": "old_test.go",
+    "query": "how to match http requests in gorilla mux",
+    "chunk_id": "48b535eecf486a608398a403193c0b0e2a4dbc8efda000a1b7c93193219249b7",
+    "chunk_name": "matcher",
+    "chunk_type": "interface",
+    "file_path": "route.go",
     "repo_name": "gorilla-mux"
   },
   {
@@ -224,25 +176,33 @@
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "find mutex used in route test for gorilla mux router",
-    "chunk_id": "305ce6da3f9ca745626dcb2544d040664bd4722f154d22fc059a965b90f87078",
-    "chunk_name": "testNewRouterMu",
-    "chunk_type": "var",
-    "file_path": "route_test.go",
+    "query": "how to traverse routes in gorilla mux with a callback function",
+    "chunk_id": "4186ed572baa1c6f475336a915f3426b1089601579b183892d6a1f53a8d38b5e",
+    "chunk_name": "WalkFunc",
+    "chunk_type": "type_alias",
+    "file_path": "mux.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "host matcher tests for gorilla mux with three letter domain parts and port handling",
-    "chunk_id": "087caa73d5aac6bd9d67ed64a20aeb8c3b8f82ad35690e3aaca5cecaa32a6f57",
-    "chunk_name": "hostMatcherTests",
-    "chunk_type": "var",
-    "file_path": "old_test.go",
+    "query": "how to define a custom type based on int in Go",
+    "chunk_id": "dd3d6f4783d6ffd153cfa7f4803503c9c898ca62ee8b0ef780562c7772f5dc12",
+    "chunk_name": "regexpType",
+    "chunk_type": "type_alias",
+    "file_path": "regexp.go",
     "repo_name": "gorilla-mux"
   },
   {
-    "query": "how to match HTTP request headers in gorilla mux",
-    "chunk_id": "90ddcf3aa86a43f56fbbfb676f25dd4c78c90c681f299e96a558078ebb6e08b2",
-    "chunk_name": "headerMatcher",
+    "query": "how to create custom route matchers in gorilla mux",
+    "chunk_id": "04411650eacacb492cf0b90a7e22c5bfbd24c91a941e43b5318b1a7b0c5f20fa",
+    "chunk_name": "MatcherFunc",
+    "chunk_type": "type_alias",
+    "file_path": "route.go",
+    "repo_name": "gorilla-mux"
+  },
+  {
+    "query": "how to match request headers with regex in gorilla mux",
+    "chunk_id": "e5d5ecc2b15c49922c64f1e245926a830b77a9b0651984cbe6d5bfe11a955e14",
+    "chunk_name": "headerRegexMatcher",
     "chunk_type": "type_alias",
     "file_path": "route.go",
     "repo_name": "gorilla-mux"
@@ -253,30 +213,6 @@
     "chunk_name": "MiddlewareFunc",
     "chunk_type": "type_alias",
     "file_path": "middleware.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to match HTTP methods in gorilla mux",
-    "chunk_id": "598ae718fb510b3c7d0505eb8ec50d1fe72852736d13cc954354689884172498",
-    "chunk_name": "methodMatcher",
-    "chunk_type": "type_alias",
-    "file_path": "route.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to define a custom type for regular expressions in Go",
-    "chunk_id": "dd3d6f4783d6ffd153cfa7f4803503c9c898ca62ee8b0ef780562c7772f5dc12",
-    "chunk_name": "regexpType",
-    "chunk_type": "type_alias",
-    "file_path": "regexp.go",
-    "repo_name": "gorilla-mux"
-  },
-  {
-    "query": "how to traverse routes in gorilla mux with a callback function",
-    "chunk_id": "4186ed572baa1c6f475336a915f3426b1089601579b183892d6a1f53a8d38b5e",
-    "chunk_name": "WalkFunc",
-    "chunk_type": "type_alias",
-    "file_path": "mux.go",
     "repo_name": "gorilla-mux"
   }
 ]

@@ -37,6 +37,8 @@ def main() -> None:
                         help="Number of chunks to sample per chunk type (default: 5)")
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for reproducible sampling (default: 42)")
+    parser.add_argument("--exclude-test-files", action="store_true",
+                        help="Exclude chunks from *_test.go files")
     args = parser.parse_args()
 
     embedding_fn = OllamaEmbeddingFunction(
@@ -53,6 +55,7 @@ def main() -> None:
     print(f"  repo          : {args.repo}")
     print(f"  chat model    : {args.chat_model}")
     print(f"  samples/type  : {args.samples_per_type}")
+    print(f"  exclude tests : {args.exclude_test_files}")
     print(f"  output        : {args.output}")
     print()
 
@@ -63,6 +66,7 @@ def main() -> None:
             repo_name=args.repo,
             samples_per_type=args.samples_per_type,
             seed=args.seed,
+            exclude_test_files=args.exclude_test_files,
         )
         save_golden_set(entries, args.output)
     finally:

@@ -36,13 +36,15 @@ def generate_golden_set(
     repo_name: str,
     samples_per_type: int = 5,
     seed: int = 42,
+    exclude_test_files: bool = False,
 ) -> list[dict]:
     entries = []
     rng = random.Random(seed)
 
     for chunk_type in _CHUNK_TYPES:
         candidates = store.sample_chunks(
-            repo_name, chunk_type=chunk_type, limit=samples_per_type * 4
+            repo_name, chunk_type=chunk_type, limit=samples_per_type * 4,
+            exclude_test_files=exclude_test_files,
         )
         if not candidates:
             continue

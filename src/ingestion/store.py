@@ -217,7 +217,11 @@ class ChunkStore:
         self, query: str, top_k: int = 10, repo_name: str | None = None
     ) -> list[dict]:
         count = self._collection.count()
-        n = min(top_k, count)
+        # When filtering, fetch a larger candidate pool: ChromaDB's HNSW index
+        # does post-filtering (fetch N candidates, then apply where), so fetching
+        # only top_k candidates causes hits to be pruned before the filter runs.
+        fetch_k = (top_k * 10) if repo_name else top_k
+        n = min(fetch_k, count)
         if n == 0:
             return []
 
@@ -243,7 +247,7 @@ class ChunkStore:
                 results["documents"][0],
                 results["distances"][0],
             )
-        ]
+        ][:top_k]
 
     def keyword_search(
         self, query: str, top_k: int = 10, repo_name: str | None = None
@@ -308,6 +312,7 @@ class ChunkStore:
         repo_name: str,
         chunk_type: str | None = None,
         limit: int = 20,
+        exclude_test_files: bool = False,
     ) -> list[dict]:
         where: dict = (
             {"$and": [{"repo_name": repo_name}, {"chunk_type": chunk_type}]}
@@ -316,15 +321,22 @@ class ChunkStore:
         )
         result = self._collection.get(
             where=where,
-            limit=limit,
+            limit=None if exclude_test_files else limit,
             include=["metadatas", "documents"],
         )
-        return [
+        chunks = [
             {"id": id_, "content": doc, "metadata": meta}
             for id_, doc, meta in zip(
                 result["ids"], result["documents"], result["metadatas"]
             )
         ]
+        if exclude_test_files:
+            chunks = [
+                c for c in chunks
+                if not c["metadata"].get("file_path", "").endswith("_test.go")
+            ]
+            return chunks[:limit]
+        return chunks
 
     def close(self) -> None:
         self._db.close()
