@@ -227,6 +227,123 @@ python scripts/evaluate.py --mode keyword
 - The per-type breakdown shows which chunk types are hardest to retrieve — useful for targeting parser or embedding improvements.
 - The "Misses" section lists every query that returned no correct result, with the query text, so you can inspect whether the query was ambiguous or the retrieval genuinely failed.
 
+### MCP Server
+
+The MCP server exposes Cencio's hybrid search as a tool that AI assistants can call directly during a conversation. Once configured, you can ask an assistant to "find the authentication handler" or "show me error wrapping patterns" and it will query your index without you copying or pasting anything.
+
+#### Running the server
+
+The server communicates over stdio and is started by the client — you don't run it manually. To verify it works before wiring it up:
+
+```bash
+python scripts/mcp_server.py
+```
+
+It will block waiting for MCP protocol messages. `Ctrl-C` to exit. If it exits immediately with an error, check that Ollama is running and the index exists.
+
+#### Environment variables
+
+All configuration is via environment variables. Every variable has a default that works out of the box after running `ingest.py` from the project root.
+
+| Variable | Default | Description |
+|---|---|---|
+| `CENCIO_CHROMA_PATH` | `data/vector_store/chroma` | Absolute or relative path to the ChromaDB directory |
+| `CENCIO_SQLITE_PATH` | `data/vector_store/index.db` | Absolute or relative path to the SQLite FTS5 database |
+| `CENCIO_OLLAMA_URL` | `http://localhost:11434` | Ollama server base URL |
+| `CENCIO_EMBED_MODEL` | `nomic-embed-text:v1.5` | Embedding model name as registered in Ollama |
+
+The defaults are relative to the project root and match `ingest.py`'s defaults, so no configuration is needed if you run the server from the Cencio directory. Set the path variables to absolute paths when configuring the server inside a client — the client may launch the process from a different working directory.
+
+#### Tool reference
+
+The server exposes one tool:
+
+**`search_code`**
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `query` | string | *(required)* | Natural-language or keyword search query |
+| `mode` | string | `hybrid` | `hybrid`, `semantic`, or `keyword` |
+| `repo` | string | *(all repos)* | Repository name to restrict results to |
+| `top_k` | integer | `5` | Number of results (capped at 20) |
+
+#### Configuring clients
+
+Replace `/path/to/cencio` with the absolute path to this repository and `/path/to/cencio/.venv/bin/python` with the absolute path to the Python interpreter in your virtual environment. Use `which python` inside the activated venv to find the exact path.
+
+---
+
+**Claude Code**
+
+Add to your user-level config (`~/.claude/settings.json`) to make the tool available in every project:
+
+```json
+{
+  "mcpServers": {
+    "cencio": {
+      "command": "/path/to/cencio/.venv/bin/python",
+      "args": ["/path/to/cencio/scripts/mcp_server.py"],
+      "env": {
+        "CENCIO_CHROMA_PATH": "/path/to/cencio/data/vector_store/chroma",
+        "CENCIO_SQLITE_PATH": "/path/to/cencio/data/vector_store/index.db"
+      }
+    }
+  }
+}
+```
+
+Or add to `.claude/settings.json` in a specific project to scope it to that workspace.
+
+---
+
+**GitHub Copilot (VS Code)**
+
+Create `.vscode/mcp.json` in the workspace root (or add to your VS Code user `settings.json` under the `mcp.servers` key):
+
+```json
+{
+  "servers": {
+    "cencio": {
+      "type": "stdio",
+      "command": "/path/to/cencio/.venv/bin/python",
+      "args": ["/path/to/cencio/scripts/mcp_server.py"],
+      "env": {
+        "CENCIO_CHROMA_PATH": "/path/to/cencio/data/vector_store/chroma",
+        "CENCIO_SQLITE_PATH": "/path/to/cencio/data/vector_store/index.db"
+      }
+    }
+  }
+}
+```
+
+MCP tools are available in Copilot Chat when using **Agent mode** (`@workspace` with the agent toggle enabled).
+
+---
+
+**Zed**
+
+Add to `~/.config/zed/settings.json`:
+
+```json
+{
+  "context_servers": {
+    "cencio": {
+      "command": {
+        "path": "/path/to/cencio/.venv/bin/python",
+        "args": ["/path/to/cencio/scripts/mcp_server.py"],
+        "env": {
+          "CENCIO_CHROMA_PATH": "/path/to/cencio/data/vector_store/chroma",
+          "CENCIO_SQLITE_PATH": "/path/to/cencio/data/vector_store/index.db"
+        }
+      },
+      "settings": {}
+    }
+  }
+}
+```
+
+After saving, open the Assistant panel and the `search_code` tool will appear in the context server list. Zed restarts context servers automatically when settings change.
+
 ### Running Tests
 
 Run all unit tests:
@@ -277,6 +394,7 @@ cencio/
 ├── scripts/
 │   ├── ingest.py                 # CLI: clone/pull repos and run incremental indexing
 │   ├── query.py                  # CLI: search the index (hybrid, semantic, or keyword)
+│   ├── mcp_server.py             # MCP server: exposes search_code tool over stdio
 │   ├── generate_golden_set.py    # CLI: generate the retrieval evaluation golden set
 │   ├── evaluate.py               # CLI: run evaluation and print hit rate + MRR report
 │   └── show.py                   # CLI: inspect indexed chunks from ChromaDB and SQLite
@@ -313,6 +431,7 @@ cencio/
 - [ChromaDB](https://www.trychroma.com) — vector store for semantic search
 - SQLite FTS5 — keyword search (Python stdlib, no extra dependencies)
 - [Ollama](https://ollama.com) — local embedding model server
+- [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) — MCP server for AI assistant integration
 
 ---
 *Clean code. Clean context. Cencio.*
