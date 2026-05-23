@@ -21,6 +21,17 @@ _STOP_WORDS = frozenset({
 })
 
 
+def _build_embedding_text(chunk: Chunk) -> str:
+    """Build enriched text for embedding that includes doc and signature."""
+    parts = []
+    if chunk.doc:
+        parts.append(chunk.doc.strip())
+    if chunk.signature:
+        parts.append(chunk.signature.strip())
+    parts.append(chunk.content)
+    return "\n\n".join(parts)
+
+
 def _to_fts_query(text: str) -> str:
     """Convert a natural-language string to a FTS5 OR expression.
 
@@ -131,7 +142,7 @@ class ChunkStore:
 
             self._collection.upsert(
                 ids=[c.id for c in chunks],
-                documents=[c.content for c in chunks],
+                documents=[_build_embedding_text(c) for c in chunks],
                 metadatas=[{
                     "repo_name": repo_name,
                     "file_path": file_path,
