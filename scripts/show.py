@@ -7,14 +7,39 @@ from pathlib import Path
 import chromadb
 
 _PROJECT_ROOT = Path(__file__).parent.parent
-_DEFAULT_CHROMA = _PROJECT_ROOT / "build" / "database" / "chroma"
-_DEFAULT_SQLITE = _PROJECT_ROOT / "build" / "database" / "index.db"
+_DEFAULT_CHROMA = _PROJECT_ROOT / "data" / "vector_store" / "chroma"
+_DEFAULT_SQLITE = _PROJECT_ROOT / "data" / "vector_store" / "index.db"
 _COLLECTION_NAME = "chunks"
 _HEAVY = "═" * 72
 _VALID_TYPES = [
     "package", "block", "function", "method", "struct",
     "interface", "const", "var", "type_alias",
 ]
+
+# Names that are too generic to be meaningfully retrieved
+_LOW_QUALITY_NAMES = frozenset({
+    "",        # unnamed blocks
+    "_",       # blank identifier
+    "err",     # ubiquitous error variable
+    "ctx",     # context variable
+    "ok",      # boolean check variable
+    "i", "j", "k", "n", "m",  # loop counters
+    "H",       # single-letter test harness
+    "T",       # generic type parameter
+})
+
+
+def _is_low_quality_chunk(name: str, chunk_type: str) -> bool:
+    """Return True if this chunk is too generic to evaluate meaningfully."""
+    if name in _LOW_QUALITY_NAMES:
+        return True
+    # Single-letter names are usually not retrievable
+    if len(name) == 1:
+        return True
+    # Very short names for var/const are often generic
+    if chunk_type in ("var", "const") and len(name) <= 2:
+        return True
+    return False
 
 
 def _sqlite_extras(db: sqlite3.Connection, chunk_ids: list[str]) -> dict[str, dict]:
@@ -89,6 +114,30 @@ def _print_chunk(
     print()
 
 
+def _print_low_quality_summary(
+    chunks: list[tuple[str, dict, str]],
+) -> None:
+    """Print a summary table of low-quality chunks."""
+    print(f"Found {len(chunks)} low-quality chunks:\n")
+    print(f"{'Type':<12} {'Name':<20} {'File':<50} {'Chunk ID'}")
+    print("─" * 120)
+
+    by_type: dict[str, int] = {}
+
+    for chunk_id, meta, doc in chunks:
+        chunk_type = meta.get("chunk_type", "unknown")
+        name = meta.get("name") or "(unnamed)"
+        file_path = meta.get("file_path", "")
+
+        by_type[chunk_type] = by_type.get(chunk_type, 0) + 1
+        print(f"{chunk_type:<12} {name:<20} {file_path:<50} {chunk_id}")
+
+    print()
+    print("Summary by type:")
+    for chunk_type, count in sorted(by_type.items(), key=lambda x: -x[1]):
+        print(f"  {chunk_type}: {count}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Inspect chunks stored in ChromaDB and SQLite."
@@ -108,6 +157,8 @@ def main() -> None:
                          help=f"chunk type: {', '.join(_VALID_TYPES)}")
     filters.add_argument("--package", metavar="STR",
                          help="substring match on package name")
+    filters.add_argument("--low-quality", action="store_true",
+                         help="show chunks with generic names that are hard to retrieve")
 
     parser.add_argument("--limit", type=int, default=20, metavar="N",
                         help="max chunks to display (default: 20)")
@@ -115,11 +166,11 @@ def main() -> None:
     parser.add_argument("--sqlite-path", type=Path, default=_DEFAULT_SQLITE)
     args = parser.parse_args()
 
-    if not any([args.chunk_id, args.name, args.repo, args.file,
+    if not args.low_quality and not any([args.chunk_id, args.name, args.repo, args.file,
                 args.chunk_type, args.package]):
         parser.error(
             "at least one filter is required: "
-            "--id, --name, --repo, --file, --type, --package"
+            "--id, --name, --repo, --file, --type, --package, or --low-quality"
         )
 
     try:
@@ -139,6 +190,32 @@ def main() -> None:
         sys.exit(1)
 
     try:
+        if args.low_quality:
+            # Fetch all chunks and filter for low-quality ones
+            where = _build_where(args.repo, args.chunk_type)
+            kwargs: dict = dict(include=["metadatas", "documents"])
+            if where:
+                kwargs["where"] = where
+
+            result = collection.get(**kwargs)
+
+            # Filter for low-quality chunks
+            low_quality = [
+                (cid, meta, doc)
+                for cid, meta, doc in zip(result["ids"], result["metadatas"], result["documents"])
+                if _is_low_quality_chunk(
+                    meta.get("name", ""),
+                    meta.get("chunk_type", "")
+                )
+            ]
+
+            if not low_quality:
+                print("No low-quality chunks found.")
+                return
+
+            _print_low_quality_summary(low_quality[:args.limit])
+            return
+
         if args.chunk_id:
             result = collection.get(
                 ids=[args.chunk_id], include=["metadatas", "documents"]
