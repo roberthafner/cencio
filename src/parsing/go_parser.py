@@ -424,6 +424,7 @@ def _extract_blocks(tree, source: bytes, file_path: str, package_name: str) -> L
         if not (is_const_block or is_var_block):
             continue
 
+        # Collect comments above the block
         doc_nodes = []
         for j in range(i - 1, -1, -1):
             if children[j].type == "comment":
@@ -431,12 +432,26 @@ def _extract_blocks(tree, source: bytes, file_path: str, package_name: str) -> L
             else:
                 break
 
+        # Also collect inline comments within the block
+        inline_comments = []
+        def collect_comments(node):
+            for c in node.children:
+                if c.type == "comment":
+                    inline_comments.append(source[c.start_byte:c.end_byte].decode("utf-8"))
+                collect_comments(c)
+        collect_comments(child)
+
         if doc_nodes:
             start_node = doc_nodes[0]
             doc = source[start_node.start_byte:doc_nodes[-1].end_byte].decode("utf-8")
         else:
             start_node = child
             doc = ""
+
+        # Append inline comments to doc
+        if inline_comments:
+            inline_doc = "\n".join(inline_comments)
+            doc = f"{doc}\n{inline_doc}".strip() if doc else inline_doc
 
         content = source[start_node.start_byte:child.end_byte].decode("utf-8")
 
