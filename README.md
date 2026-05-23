@@ -75,8 +75,25 @@ Options:
 | `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
 | `--model` | `nomic-embed-text:v1.5` | Embedding model name |
+| `--summarize` | disabled | Generate LLM summaries for chunks lacking documentation |
+| `--chat-model` | `devstral-small-2:latest` | Chat model for summarization |
+| `--verbose`, `-v` | disabled | Print detailed progress including summarization |
 
 Re-running `ingest.py` is safe and efficient — only changed files are re-indexed.
+
+#### LLM Summarization
+
+The `--summarize` flag enables automatic generation of summaries for chunks that lack good documentation (empty or short `doc` field, unnamed blocks). This can significantly improve retrieval quality for poorly documented code.
+
+```bash
+# Enable summarization with verbose output
+python scripts/ingest.py --summarize --verbose
+
+# Use a different chat model
+python scripts/ingest.py --summarize --chat-model llama3:8b
+```
+
+**Note:** Summarization adds an LLM call per chunk that needs it, which slows down ingestion. For large codebases, consider running with `--summarize` only when needed.
 
 ### Query the Index
 
@@ -117,7 +134,7 @@ python scripts/query.py "context propagation" --repo my-project
 `show.py` lets you browse the raw content of indexed chunks from ChromaDB and SQLite without truncation. Useful for debugging retrieval misses or reviewing what got indexed.
 
 ```bash
-python scripts/show.py --repo gorilla-mux --name WalkFunc
+python scripts/show.py --repo viya-sonder --name WalkFunc
 ```
 
 At least one filter is required. Filters can be combined (AND logic):
@@ -130,22 +147,32 @@ At least one filter is required. Filters can be combined (AND logic):
 | `--file STR` | Substring match on file path |
 | `--type TYPE` | Chunk type: `package`, `block`, `function`, `method`, `struct`, `interface`, `const`, `var`, `type_alias` |
 | `--package STR` | Substring match on package name |
+| `--low-quality` | Show chunks with generic names that are hard to retrieve |
 | `--limit N` | Max chunks to display (default: 20) |
 
 Examples:
 
 ```bash
 # All functions in a test file
-python scripts/show.py --repo gorilla-mux --file mux_test.go --type function
+python scripts/show.py --repo viya-sonder --file mux_test.go --type function
 
 # All type aliases in a repo
-python scripts/show.py --repo gorilla-mux --type type_alias
+python scripts/show.py --repo viya-sonder --type type_alias
 
 # Look up a chunk directly by ID (e.g. from evaluation miss output)
 python scripts/show.py --id 4186ed572baa1c6f475336a915f3426b1089601579b183892d6a1f53a8d38b5e
+
+# Find low-quality chunks that may hurt retrieval metrics
+python scripts/show.py --low-quality --limit 100
+
+# Low-quality chunks filtered by repo or type
+python scripts/show.py --low-quality --repo viya-sonder
+python scripts/show.py --low-quality --type var
 ```
 
 Each result shows the full untruncated content from ChromaDB, plus the `doc` and `signature` fields from SQLite.
+
+The `--low-quality` flag identifies chunks with generic names (e.g., `err`, `_`, `ctx`, single-letter variables) that are nearly impossible to retrieve accurately. This helps you understand which chunks may be hurting your evaluation metrics.
 
 ### Evaluating Retrieval Quality
 
@@ -163,12 +190,12 @@ Options:
 
 | Flag | Default | Description |
 |---|---|---|
-| `--repo` | `gorilla-mux` | Repository name as stored in the index |
+| `--repo` | all from config | Repository name(s) to include (can be specified multiple times) |
 | `--chat-model` | `devstral-small-2:latest` | Ollama chat model used to write queries |
 | `--embed-model` | `nomic-embed-text:v1.5` | Ollama embedding model |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
 | `--samples-per-type` | `5` | Chunks sampled per chunk type |
-| `--output` | `tests/evaluation/golden_mux.json` | Output path |
+| `--output` | `tests/evaluation/golden.json` | Output path |
 | `--seed` | `42` | Random seed for reproducible sampling |
 
 Any Ollama chat model works. Larger or code-focused models (e.g. `devstral-small-2`, `qwen3`) produce more precise queries and a more demanding golden set.
@@ -185,7 +212,7 @@ Options:
 
 | Flag | Default | Description |
 |---|---|---|
-| `--golden-set` | `tests/evaluation/golden_mux.json` | Path to the golden set |
+| `--golden-set` | `tests/evaluation/golden.json` | Path to the golden set |
 | `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
 | `--top-k` | `5` | Number of results retrieved per query |
 | `--keyword-weight` | `1.0` | RRF weight for keyword results relative to semantic (hybrid mode only) |
@@ -417,7 +444,7 @@ cencio/
     ├── data/
     │   └── golang/               # Go source fixtures for parser tests
     ├── evaluation/
-    │   └── golden_mux.json       # Committed golden set for gorilla/mux
+    │   └── golden.json           # Committed golden set for evaluation
     ├── integration/              # End-to-end tests (require Ollama + network)
     └── unit/
         ├── embedding/            # Tests for OllamaEmbeddingFunction
