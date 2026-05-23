@@ -18,7 +18,12 @@ class StubEmbeddingFunction:
         return result
 
 
-def _make_chunk(name: str, content: str, file_path: str = "main.go") -> Chunk:
+def _make_chunk(
+    name: str,
+    content: str,
+    file_path: str = "main.go",
+    is_test: bool = False,
+) -> Chunk:
     from src.models.chunk import generate_id
     return Chunk(
         id=generate_id(content),
@@ -31,6 +36,7 @@ def _make_chunk(name: str, content: str, file_path: str = "main.go") -> Chunk:
         end_line=5,
         doc=f"// {name} does something",
         signature=f"func {name}()",
+        is_test=is_test,
     )
 
 
@@ -319,3 +325,125 @@ def test_hybrid_search_filters_by_repo(store):
 
     results = store.hybrid_search("function", top_k=10, repo_name="repo_a")
     assert all(r["metadata"]["repo_name"] == "repo_a" for r in results)
+
+
+# ------------------------------------------------------------------
+# include_tests filter
+# ------------------------------------------------------------------
+
+def test_upsert_stores_is_test_metadata(store):
+    """Verify is_test is stored in ChromaDB metadata."""
+    test_chunk = _make_chunk("TestFoo", "func TestFoo() {}", "foo_test.go", is_test=True)
+    store.upsert_chunks([test_chunk], "myrepo", "foo_test.go")
+
+    results = store.semantic_search("TestFoo", top_k=10, include_tests=True)
+    assert len(results) == 1
+    assert results[0]["metadata"]["is_test"] is True
+
+
+def test_semantic_search_excludes_test_chunks_by_default(store):
+    """Test chunks should be excluded by default."""
+    regular_chunk = _make_chunk("RegularFunc", "func RegularFunc() {}", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestFunc", "func TestFunc() {}", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+
+    results = store.semantic_search("func", top_k=10)
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "RegularFunc"
+
+
+def test_semantic_search_includes_test_chunks_when_flag_set(store):
+    """Test chunks should be included when include_tests=True."""
+    regular_chunk = _make_chunk("RegularFunc", "func RegularFunc() {}", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestFunc", "func TestFunc() {}", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+
+    results = store.semantic_search("func", top_k=10, include_tests=True)
+    assert len(results) == 2
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"RegularFunc", "TestFunc"}
+
+
+def test_keyword_search_excludes_test_chunks_by_default(store):
+    """Test chunks should be excluded from keyword search by default."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() {}", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestFindUser", "func TestFindUser() {}", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+
+    results = store.keyword_search("FindUser", top_k=10)
+    assert len(results) == 1
+    assert results[0]["id"] == regular_chunk.id
+
+
+def test_keyword_search_includes_test_chunks_when_flag_set(store):
+    """Test chunks should be included in keyword search when include_tests=True."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() { /* find user */ }", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestFindUser", "func TestFindUser() { /* find user test */ }", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+
+    # Both chunks contain "find" and "user" so both should match
+    results = store.keyword_search("find user", top_k=10, include_tests=True)
+    assert len(results) == 2
+    ids = {r["id"] for r in results}
+    assert ids == {regular_chunk.id, test_chunk.id}
+
+
+def test_hybrid_search_excludes_test_chunks_by_default(store):
+    """Test chunks should be excluded from hybrid search by default."""
+    regular_chunk = _make_chunk("ProcessData", "func ProcessData() {}", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestProcessData", "func TestProcessData() {}", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+
+    results = store.hybrid_search("ProcessData", top_k=10)
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "ProcessData"
+
+
+def test_hybrid_search_includes_test_chunks_when_flag_set(store):
+    """Test chunks should be included in hybrid search when include_tests=True."""
+    regular_chunk = _make_chunk("ProcessData", "func ProcessData() {}", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestProcessData", "func TestProcessData() {}", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+
+    results = store.hybrid_search("ProcessData", top_k=10, include_tests=True)
+    assert len(results) == 2
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"ProcessData", "TestProcessData"}
+
+
+def test_include_tests_works_with_repo_filter(store):
+    """include_tests should work correctly when combined with repo_name filter."""
+    regular_chunk = _make_chunk("Foo", "func Foo() {}", "main.go", is_test=False)
+    test_chunk = _make_chunk("TestFoo", "func TestFoo() {}", "main_test.go", is_test=True)
+    store.upsert_chunks([regular_chunk], "repo_a", "main.go")
+    store.upsert_chunks([test_chunk], "repo_a", "main_test.go")
+
+    # Exclude tests (default)
+    results = store.semantic_search("Foo", top_k=10, repo_name="repo_a")
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "Foo"
+
+    # Include tests
+    results = store.semantic_search("Foo", top_k=10, repo_name="repo_a", include_tests=True)
+    assert len(results) == 2
+
+
+def test_only_test_chunks_returns_empty_when_excluded(store):
+    """If only test chunks exist, excluding them should return empty results."""
+    test_chunk = _make_chunk("TestOnly", "func TestOnly() {}", "only_test.go", is_test=True)
+    store.upsert_chunks([test_chunk], "myrepo", "only_test.go")
+
+    results = store.semantic_search("TestOnly", top_k=10)
+    assert len(results) == 0
+
+    results = store.keyword_search("TestOnly", top_k=10)
+    assert len(results) == 0
+
+    results = store.hybrid_search("TestOnly", top_k=10)
+    assert len(results) == 0

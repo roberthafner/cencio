@@ -151,6 +151,7 @@ class ChunkStore:
                     "package_name": c.package_name,
                     "start_line": c.start_line,
                     "end_line": c.end_line,
+                    "is_test": c.is_test,
                 } for c in chunks],
             )
 
@@ -225,13 +226,14 @@ class ChunkStore:
         return row[0]
 
     def semantic_search(
-        self, query: str, top_k: int = 10, repo_name: str | None = None
+        self, query: str, top_k: int = 10, repo_name: str | None = None,
+        include_tests: bool = False,
     ) -> list[dict]:
         count = self._collection.count()
         # When filtering, fetch a larger candidate pool: ChromaDB's HNSW index
         # does post-filtering (fetch N candidates, then apply where), so fetching
         # only top_k candidates causes hits to be pruned before the filter runs.
-        fetch_k = (top_k * 10) if repo_name else top_k
+        fetch_k = (top_k * 10) if (repo_name or not include_tests) else top_k
         n = min(fetch_k, count)
         if n == 0:
             return []
@@ -241,8 +243,18 @@ class ChunkStore:
             n_results=n,
             include=["metadatas", "documents", "distances"],
         )
+
+        # Build where clause
+        where_clauses = []
         if repo_name is not None:
-            kwargs["where"] = {"repo_name": repo_name}
+            where_clauses.append({"repo_name": repo_name})
+        if not include_tests:
+            where_clauses.append({"is_test": False})
+
+        if len(where_clauses) == 1:
+            kwargs["where"] = where_clauses[0]
+        elif len(where_clauses) > 1:
+            kwargs["where"] = {"$and": where_clauses}
 
         results = self._collection.query(**kwargs)
         return [
@@ -261,9 +273,24 @@ class ChunkStore:
         ][:top_k]
 
     def keyword_search(
-        self, query: str, top_k: int = 10, repo_name: str | None = None
+        self, query: str, top_k: int = 10, repo_name: str | None = None,
+        include_tests: bool = False,
     ) -> list[dict]:
         fts_query = _to_fts_query(query)
+
+        # Get chunk IDs to exclude if not including tests
+        excluded_ids: set[str] = set()
+        if not include_tests:
+            # Fetch test chunk IDs from ChromaDB
+            test_results = self._collection.get(
+                where={"is_test": True},
+                include=[],
+            )
+            excluded_ids = set(test_results["ids"])
+
+        # Fetch extra results if we need to filter
+        fetch_limit = top_k * 2 if excluded_ids else top_k
+
         if repo_name is not None:
             rows = self._db.execute(
                 "SELECT chunk_id, rank FROM chunks_fts"
@@ -271,15 +298,21 @@ class ChunkStore:
                 "   AND chunk_id IN"
                 "       (SELECT chunk_id FROM chunk_file_map WHERE repo_name = ?)"
                 " ORDER BY rank LIMIT ?",
-                (fts_query, repo_name, top_k),
+                (fts_query, repo_name, fetch_limit),
             ).fetchall()
         else:
             rows = self._db.execute(
                 "SELECT chunk_id, rank FROM chunks_fts"
                 " WHERE chunks_fts MATCH ? ORDER BY rank LIMIT ?",
-                (fts_query, top_k),
+                (fts_query, fetch_limit),
             ).fetchall()
-        return [{"id": row["chunk_id"], "rank": row["rank"]} for row in rows]
+
+        results = [
+            {"id": row["chunk_id"], "rank": row["rank"]}
+            for row in rows
+            if row["chunk_id"] not in excluded_ids
+        ]
+        return results[:top_k]
 
     def hybrid_search(
         self,
@@ -287,9 +320,10 @@ class ChunkStore:
         top_k: int = 10,
         repo_name: str | None = None,
         keyword_weight: float = _RRF_KEYWORD_WEIGHT,
+        include_tests: bool = False,
     ) -> list[dict]:
-        semantic = self.semantic_search(query, top_k, repo_name)
-        keyword = self.keyword_search(query, top_k, repo_name)
+        semantic = self.semantic_search(query, top_k, repo_name, include_tests)
+        keyword = self.keyword_search(query, top_k, repo_name, include_tests)
 
         scores: dict[str, float] = {}
         for rank, result in enumerate(semantic):

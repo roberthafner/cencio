@@ -74,6 +74,10 @@ def main() -> None:
         "--repo", default=None,
         help="Filter results to a specific repository name",
     )
+    parser.add_argument(
+        "--include-tests", action="store_true",
+        help="Include test code chunks in results (excluded by default)",
+    )
     parser.add_argument("--chroma-path", type=Path, default=_DEFAULT_CHROMA)
     parser.add_argument("--sqlite-path", type=Path, default=_DEFAULT_SQLITE)
     parser.add_argument("--ollama-url", default="http://localhost:11434")
@@ -91,11 +95,14 @@ def main() -> None:
 
     try:
         if args.mode == "hybrid":
-            results = store.hybrid_search(args.query, args.top_k, args.repo)
+            results = store.hybrid_search(args.query, args.top_k, args.repo,
+                                          include_tests=args.include_tests)
         elif args.mode == "semantic":
-            results = store.semantic_search(args.query, args.top_k, args.repo)
+            results = store.semantic_search(args.query, args.top_k, args.repo,
+                                            include_tests=args.include_tests)
         else:
-            results = store.keyword_search(args.query, args.top_k, args.repo)
+            results = store.keyword_search(args.query, args.top_k, args.repo,
+                                           include_tests=args.include_tests)
 
         _print_results(results, args.query, args.mode, args.top_k)
     finally:

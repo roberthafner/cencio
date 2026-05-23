@@ -9,34 +9,72 @@ from src.models.chunk import Chunk, ChunkType, generate_id
 GO_LANGUAGE = Language(tsg.language())
 
 
+def _is_test_file(file_path: str, tree, source: bytes) -> bool:
+    """
+    Determine if a Go file is a test file.
+
+    A file is considered a test file if:
+    1. The file path ends with `_test.go`, OR
+    2. The file imports the `"testing"` package
+    """
+    if file_path.endswith("_test.go"):
+        return True
+
+    # Check for import of "testing" package
+    root = tree.root_node
+    for child in root.children:
+        if child.type == "import_declaration":
+            for node in child.children:
+                if node.type == "import_spec":
+                    # Single import: import "testing"
+                    for spec_child in node.children:
+                        if spec_child.type == "interpreted_string_literal":
+                            import_path = source[spec_child.start_byte:spec_child.end_byte].decode("utf-8")
+                            if import_path == '"testing"':
+                                return True
+                elif node.type == "import_spec_list":
+                    # Grouped imports: import ( "testing" ... )
+                    for spec in node.children:
+                        if spec.type == "import_spec":
+                            for spec_child in spec.children:
+                                if spec_child.type == "interpreted_string_literal":
+                                    import_path = source[spec_child.start_byte:spec_child.end_byte].decode("utf-8")
+                                    if import_path == '"testing"':
+                                        return True
+
+    return False
+
+
 def parse_file(file_path: str) -> List[Chunk]:
     """Parse a Go source file and return all semantic chunks."""
     source = Path(file_path).read_bytes()
     parser = Parser(GO_LANGUAGE)
     tree = parser.parse(source)
 
-    package_chunk = _extract_package(tree, source, file_path)
+    is_test = _is_test_file(file_path, tree, source)
+
+    package_chunk = _extract_package(tree, source, file_path, is_test)
     package_name = package_chunk.name if package_chunk else ""
 
-    struct_chunks = _extract_structs(tree, source, file_path, package_name)
-    method_chunks = _extract_methods(tree, source, file_path, package_name, struct_chunks)
+    struct_chunks = _extract_structs(tree, source, file_path, package_name, is_test)
+    method_chunks = _extract_methods(tree, source, file_path, package_name, struct_chunks, is_test)
 
     chunks: List[Chunk] = []
     if package_chunk:
         chunks.append(package_chunk)
     chunks.extend(struct_chunks)
     chunks.extend(method_chunks)
-    chunks.extend(_extract_functions(tree, source, file_path, package_name))
-    chunks.extend(_extract_interfaces(tree, source, file_path, package_name))
-    chunks.extend(_extract_consts(tree, source, file_path, package_name))
-    chunks.extend(_extract_vars(tree, source, file_path, package_name))
-    chunks.extend(_extract_blocks(tree, source, file_path, package_name))
-    chunks.extend(_extract_type_aliases(tree, source, file_path, package_name))
+    chunks.extend(_extract_functions(tree, source, file_path, package_name, is_test))
+    chunks.extend(_extract_interfaces(tree, source, file_path, package_name, is_test))
+    chunks.extend(_extract_consts(tree, source, file_path, package_name, is_test))
+    chunks.extend(_extract_vars(tree, source, file_path, package_name, is_test))
+    chunks.extend(_extract_blocks(tree, source, file_path, package_name, is_test))
+    chunks.extend(_extract_type_aliases(tree, source, file_path, package_name, is_test))
 
     return chunks
 
 
-def _extract_package(tree, source: bytes, file_path: str) -> Optional[Chunk]:
+def _extract_package(tree, source: bytes, file_path: str, is_test: bool) -> Optional[Chunk]:
     """Extract the package declaration chunk."""
     root = tree.root_node
 
@@ -85,10 +123,11 @@ def _extract_package(tree, source: bytes, file_path: str) -> Optional[Chunk]:
         end_line=package_clause.end_point[0] + 1,
         doc=doc,
         signature="",
+        is_test=is_test,
     )
 
 
-def _extract_functions(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_functions(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract standalone function chunks (no receiver)."""
     root = tree.root_node
     children = root.children
@@ -133,12 +172,13 @@ def _extract_functions(tree, source: bytes, file_path: str, package_name: str) -
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature=signature,
+            is_test=is_test,
         ))
 
     return chunks
 
 
-def _extract_structs(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_structs(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract struct type declaration chunks."""
     root = tree.root_node
     children = root.children
@@ -181,13 +221,14 @@ def _extract_structs(tree, source: bytes, file_path: str, package_name: str) -> 
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature=f"type {name} struct",
+            is_test=is_test,
         ))
 
     return chunks
 
 
 def _extract_methods(
-    tree, source: bytes, file_path: str, package_name: str, struct_chunks: List[Chunk]
+    tree, source: bytes, file_path: str, package_name: str, struct_chunks: List[Chunk], is_test: bool
 ) -> List[Chunk]:
     """Extract method chunks and wire parent_id to their receiver struct."""
     struct_by_name = {c.name: c for c in struct_chunks}
@@ -238,6 +279,7 @@ def _extract_methods(
             doc=doc,
             signature=signature,
             parent_id=parent_id,
+            is_test=is_test,
         )
         chunks.append(method_chunk)
 
@@ -262,7 +304,7 @@ def _receiver_type_name(receiver_list, source: bytes) -> str:
     return ""
 
 
-def _extract_interfaces(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_interfaces(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract interface type declaration chunks."""
     root = tree.root_node
     children = root.children
@@ -305,12 +347,13 @@ def _extract_interfaces(tree, source: bytes, file_path: str, package_name: str) 
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature=f"type {name} interface",
+            is_test=is_test,
         ))
 
     return chunks
 
 
-def _extract_consts(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_consts(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract individual const declaration chunks (not blocks)."""
     root = tree.root_node
     children = root.children
@@ -354,12 +397,13 @@ def _extract_consts(tree, source: bytes, file_path: str, package_name: str) -> L
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature=signature,
+            is_test=is_test,
         ))
 
     return chunks
 
 
-def _extract_vars(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_vars(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract individual var declaration chunks (not blocks)."""
     root = tree.root_node
     children = root.children
@@ -403,12 +447,13 @@ def _extract_vars(tree, source: bytes, file_path: str, package_name: str) -> Lis
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature=signature,
+            is_test=is_test,
         ))
 
     return chunks
 
 
-def _extract_blocks(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_blocks(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract grouped const or var block chunks."""
     root = tree.root_node
     children = root.children
@@ -466,12 +511,13 @@ def _extract_blocks(tree, source: bytes, file_path: str, package_name: str) -> L
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature="",
+            is_test=is_test,
         ))
 
     return chunks
 
 
-def _extract_type_aliases(tree, source: bytes, file_path: str, package_name: str) -> List[Chunk]:
+def _extract_type_aliases(tree, source: bytes, file_path: str, package_name: str, is_test: bool) -> List[Chunk]:
     """Extract type alias and type definition chunks."""
     root = tree.root_node
     children = root.children
@@ -513,6 +559,7 @@ def _extract_type_aliases(tree, source: bytes, file_path: str, package_name: str
             end_line=child.end_point[0] + 1,
             doc=doc,
             signature=signature,
+            is_test=is_test,
         ))
 
     return chunks

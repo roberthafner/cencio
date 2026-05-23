@@ -1,0 +1,914 @@
+[
+  {
+    "query": "find package metrics for organizing and exporting metrics-related functionality in Go",
+    "chunk_id": "186f09b35bf618046288ee513b58feb5820df68335b3eefb7e0df7117b57d4d1",
+    "chunk_name": "metrics",
+    "chunk_type": "package",
+    "file_path": "internal/metrics/base_service_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find Go code for job execution request handling in the viya-sonder repository",
+    "chunk_id": "d0b4d9fb1ed0ad890853a4231537a64376cd0624cd79e08ebd6b623eef3d3c77",
+    "chunk_name": "jobexecution",
+    "chunk_type": "package",
+    "file_path": "rest/representations/jobexecution/requests_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find config package for managing configuration settings in security/oauth/config/config_test.go",
+    "chunk_id": "e4543ca342731b6efa317387837ee24c1f5eb6880b99dfa0ae92d376c466db4d",
+    "chunk_name": "config",
+    "chunk_type": "package",
+    "file_path": "security/oauth/config/config_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"Go package for system-level operations in viya-sonder repository\"",
+    "chunk_id": "46409aaae9bd392eaab785431194ad5c06967501dead14a16c1539f2412c75f1",
+    "chunk_name": "system",
+    "chunk_type": "package",
+    "file_path": "config/system/sysconfig_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find package bootstrap for organizing related functionality in Go project",
+    "chunk_id": "43af13e37fdbdde61ffd39cae717ef0a839d34841791839bd0848c58fde7dd7d",
+    "chunk_name": "bootstrap",
+    "chunk_type": "package",
+    "file_path": "bootstrap/plugin.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "PostgreSQL database port and name constants in testing package",
+    "chunk_id": "c30d382c724d50601ed5bb38f93dbace572e64e36e98cde8c8ba64d8d613929f",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "testing/testing.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "global variables for HTTP response statuses in authorize override config",
+    "chunk_id": "9a8815daf1daed8427443f909ea62e5a4cb816a6ca606e044fb2bb7b9a46094f",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "security/authorize/configuration/authorize_override_config.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find context key for storing HTTP response type in middleware",
+    "chunk_id": "1c8b3e86073391237af2399bcaff1a501c3f9c52eef4ef6e20292f88c36b3d45",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "http/middleware/produces.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"constants for CAS table reference schema versions and media types in Go\"",
+    "chunk_id": "f92ee1fe9a1f413e6b05e6aeb58512661b858f68fe38dd13b72632545b31566d",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "rest/representations/casmanagement/cas_table_reference.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"Go code initializing global variables for logging, program exit handling, and testable I/O functions with fmtPrint and osExit aliases\"",
+    "chunk_id": "c4def41673c46e08fd009471326de18e80ba15c970f2ccabdd4dfac3fb05f2bf",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "tools/sas-config-mapping-tool/impl/tooling.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "function that obtains dedicated access and refresh tokens for job execution from SASLogon service and embeds them in a context",
+    "chunk_id": "4a17f4a39af5d58de6f6e81aecc390c09dfceaea7e7dbb4ae6bf63af8fe234f9",
+    "chunk_name": "BuildTokenContext",
+    "chunk_type": "function",
+    "file_path": "rest/handlers/jobexecution/oauth.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "test function for GetProcessRc exit code retrieval in Linux sysutil",
+    "chunk_id": "d173546e43e969832b85a1e9f25d591d117232f2730e70f3e1906a228b2a7844",
+    "chunk_name": "TestGetProcessRc",
+    "chunk_type": "function",
+    "file_path": "floworchestrator/utilities/sysutil_linux_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "function that validates HTTP Accept header against media types in Go middleware",
+    "chunk_id": "e32c3a950344fb838c897cd076bf07ed9ad140ec95e286a271016b7d7d27f316",
+    "chunk_name": "Produces",
+    "chunk_type": "function",
+    "file_path": "http/middleware/produces.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find test function that checks if i18n bundle is loaded and verifies translation for ServerShutdown key",
+    "chunk_id": "704fb2997ca784d184dfe9d29fc5dd361f23c85f011bd7d05550e975559acdc5",
+    "chunk_name": "TestBundle",
+    "chunk_type": "function",
+    "file_path": "i18n/logmsg/logmsg_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "function that creates a Caslib object with default version",
+    "chunk_id": "d54f77003c246fd595a2134cbc77bb6c56d79b4ad666ed3f4910d029d8fd0945",
+    "chunk_name": "NewCaslib",
+    "chunk_type": "function",
+    "file_path": "rest/representations/casmanagement/cas_caslib.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "how to parse properties string into key-value map in Go with bufio.Scanner and handle equals sign separator",
+    "chunk_id": "4633bd7075b687653b5f48391f311a7e387bdce097469c3972fa45cc575e2b13",
+    "chunk_name": "decodePropertiesString",
+    "chunk_type": "method",
+    "file_path": "config/system/sconfiguration.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "how to retrieve system configuration string by key with variable replacement in Go",
+    "chunk_id": "bf705f3de134048b43b6ec99a0e07c16c50efe6eb52f84bebb4dd56d5fa33add",
+    "chunk_name": "GetSystemString",
+    "chunk_type": "method",
+    "file_path": "config/system/sconfiguration.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find method that checks if a CASLIB attribute is set to true",
+    "chunk_id": "3be1829ecb98026b581f026f17df71392345137d635af2ef962daf0ad7862172",
+    "chunk_name": "IsAttributeTrue",
+    "chunk_type": "method",
+    "file_path": "rest/representations/casmanagement/cas_caslib.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "method that safely stores a string value in a configuration map using mutex lock for thread safety",
+    "chunk_id": "79a2d26c96e808c836b845d3136a0db7ecf48b3d1bd1c8f767540772d0db858c",
+    "chunk_name": "PutString",
+    "chunk_type": "method",
+    "file_path": "config/system/sconfiguration.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find configuration value by key with environment override fallback in Go",
+    "chunk_id": "80c17723fe7271dac0352559260975c38adbf5bafa9b892d241a7a0aa3d3a1e7",
+    "chunk_name": "find",
+    "chunk_type": "method",
+    "file_path": "config/system/sconfiguration.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"stubConfigGetter struct with properties map for testing Consul configuration retrieval\"",
+    "chunk_id": "06099bd703a28b26d56233b165d2ed13f91092032ffe02b7222b74a5b5c39d6d",
+    "chunk_name": "stubConfigGetter",
+    "chunk_type": "struct",
+    "file_path": "lock/consul/consul_locker_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find BaseSummary struct with JSON fields for version, id, name, description, and links in viya-sonder job flow scheduling API",
+    "chunk_id": "c1341c0082a979ee0f234b5ee3fe27e2d7c97891badb64ebc1b802b03cf50183",
+    "chunk_name": "BaseSummary",
+    "chunk_type": "struct",
+    "file_path": "rest/representations/jobflowscheduling/basesummary.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"TransportWrapper struct for managing chained HTTP transports with parent reference\"",
+    "chunk_id": "9c76e34ebf155903461028a1a88e59952b60faba707023e7bbcc9bc8dc3990b9",
+    "chunk_name": "TransportWrapper",
+    "chunk_type": "struct",
+    "file_path": "internal/http/transportWrapper.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"DefaultJobProperties struct with email notification and priority fields for job scheduling\"",
+    "chunk_id": "e4676378b9c13c89ccb21d12d74bc0f5756e22ddc4870e6190f0f654733a6365",
+    "chunk_name": "DefaultJobProperties",
+    "chunk_type": "struct",
+    "file_path": "rest/representations/jobflowscheduling/defaultjobproperties.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"Token struct extending uaa.TokenResponse with Expiration field in jobexecution package\"",
+    "chunk_id": "b0aa7ac725d59ccb775ba20104a6fab5c243d5396c14a88b9e7ef310887befe4",
+    "chunk_name": "Token",
+    "chunk_type": "struct",
+    "file_path": "rest/handlers/jobexecution/oauth.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find BooleanExpression interface with GetValue method in Go code",
+    "chunk_id": "007da24fb407d85710f2078f6278382e9c1914a2e8ec946098ec35dea0c3cf09",
+    "chunk_name": "BooleanExpression",
+    "chunk_type": "interface",
+    "file_path": "collections/parser/expressions.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"interface for overriding default error handling with custom errors in Go\"",
+    "chunk_id": "58b9eba665873fce8cd073c0b8614deaf278538bb74a195cb6193a08a90e68bd",
+    "chunk_name": "Override",
+    "chunk_type": "interface",
+    "file_path": "security/authorize/configuration/authorize_override_config.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find interface for validating expressions in Go parser package",
+    "chunk_id": "9e9e195214c7142a1a8ba2672187c381bec6173f4e27ea009e8ff007fb371836",
+    "chunk_name": "expressionValidator",
+    "chunk_type": "interface",
+    "file_path": "collections/parser/expressions.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "interface for parsing expression lists with GetParser GetFirst GetNext SetFirst SetNext GetList SetList methods",
+    "chunk_id": "c5b039f5d4ea9ad47a7aa5ed4eac49aec37cebee05aaaeef294d8eb29f62114e",
+    "chunk_name": "IExpression_listContext",
+    "chunk_type": "interface",
+    "file_path": "collections/parser/expr_parser.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find DateTimeExpression interface with GetValue method returning time.Time in viya-sonder collections parser",
+    "chunk_id": "43546332507eb6b010639f421ab4bd74718b3cb903daa0942231ff8b3229f7f3",
+    "chunk_name": "DateTimeExpression",
+    "chunk_type": "interface",
+    "file_path": "collections/parser/expressions.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"validator tag for allowed scripts in Unicode Recommended Scripts table\"",
+    "chunk_id": "eb6d68256260341e01986a09319ad86e502967e6dc41c9972e138a8552923f7d",
+    "chunk_name": "AllowedScriptsValidatorTag",
+    "chunk_type": "const",
+    "file_path": "rest/validators/strings.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find constant ArkeServiceName with value sas-arke in k8s.go",
+    "chunk_id": "ddfe9ca7a9b70dfaca3190db11296c3250125a90253fd80efa753dbcae306b82",
+    "chunk_name": "ArkeServiceName",
+    "chunk_type": "const",
+    "file_path": "testing/util/k8s.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find constant tagDelimiter with value \"-\" in registry package for tag separation",
+    "chunk_id": "df0fe1117c71792ba9c84e3c9e5ea529aaee04bd592aa27b6eb358d24b681212",
+    "chunk_name": "tagDelimiter",
+    "chunk_type": "const",
+    "file_path": "registry/consul.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find the SafeControlValidatorTag constant in the viya-sonder repository that validates strings for control characters except newline or tab",
+    "chunk_id": "14deb2bc2966fc183e8dcca97e8a0121ffff2c24c510c4a25bd1904eaecda20a",
+    "chunk_name": "SafeControlValidatorTag",
+    "chunk_type": "const",
+    "file_path": "rest/validators/strings.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find constant providerCapabilityTagKey in registry package for provider capabilities identification",
+    "chunk_id": "47001098d2dc64e29b49d19a5fda969888567724e8f8c606921484972edebd54",
+    "chunk_name": "providerCapabilityTagKey",
+    "chunk_type": "const",
+    "file_path": "registry/consul.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"Go code initializing DFA slice for parser decision mapping in viya-sonder\"",
+    "chunk_id": "84e3f71ef015323e47b4f2da67995fe08df54f266b941f7d043f9ea52144b72a",
+    "chunk_name": "decisionToDFA",
+    "chunk_type": "var",
+    "file_path": "collections/parser/expr_parser.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "list of HTTP status codes for retrying requests in Go",
+    "chunk_id": "fa9f6039134bad70093d5775fbff4feb67bcd2d2f2dccb60995fecad99c0ed5a",
+    "chunk_name": "retryCodes",
+    "chunk_type": "var",
+    "file_path": "openui/webapp/internal/bootstrap.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"unused variable for reflect.Copy in Go code\"",
+    "chunk_id": "86e74ee2c219872259c2a891c983aaa2d00505607adf92109fcefe33ce13ac1b",
+    "chunk_name": "_",
+    "chunk_type": "var",
+    "file_path": "collections/parser/expr_parser.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "global variable RefreshClockSkewInSeconds in jobexecution package for clock skew refresh interval",
+    "chunk_id": "e2dc79f7ac855ce345bd26d7cd64e1724f14f6335341fb533f5899c5d8481269",
+    "chunk_name": "RefreshClockSkewInSeconds",
+    "chunk_type": "var",
+    "file_path": "rest/handlers/jobexecution/oauth.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find the symbolicNames slice that maps token types to their string representations in the parser package",
+    "chunk_id": "96fc009e647c9fda94bc4e00490a3153f39b6ae883eb34f08613334a1a7b977d",
+    "chunk_name": "symbolicNames",
+    "chunk_type": "var",
+    "file_path": "collections/parser/expr_parser.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"type alias for function that counts event attempts in Go\"",
+    "chunk_id": "e126d321105905e2eddfcaaca78f5769bc03c86f26391d1fa9972a3712f3684c",
+    "chunk_name": "attempts",
+    "chunk_type": "type_alias",
+    "file_path": "event/retryPolicy.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"type alias for function that takes goctx.Context and returns error in runner package\"",
+    "chunk_id": "8d1f0ea4388d3d4c835ce227507f9911ac63a7e34f6df39f066072239cbf6fba",
+    "chunk_name": "RunFunc",
+    "chunk_type": "type_alias",
+    "file_path": "runner/runner.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find type alias configurationAlias for configuration type in jsonutil package",
+    "chunk_id": "6323bf510ecca46fa038c1862872445e6f4692063fdf4a8da0ba3ac26a34f0af",
+    "chunk_name": "configurationAlias",
+    "chunk_type": "type_alias",
+    "file_path": "rest/jsonutil/dynamicjson_test.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"CommandExecutor type alias for executing application manifest commands in Go\"",
+    "chunk_id": "dcb3a9cc993b793acd0160d1a55f3fed65499de7244550bd5007681f086e792f",
+    "chunk_name": "CommandExecutor",
+    "chunk_type": "type_alias",
+    "file_path": "tools/sas-run-tool/impl/runner.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "find ChatState type alias in viya-sonder Go codebase",
+    "chunk_id": "4df287d34f750c92d38dbfc43a9e08add9d0cd77fbe6a9e4d1d31bb90cffbeca",
+    "chunk_name": "ChatState",
+    "chunk_type": "type_alias",
+    "file_path": "rest/representations/genai/chat_state.go",
+    "repo_name": "viya-sonder"
+  },
+  {
+    "query": "\"Go package for tenant orchestration management in viya-system-management\"",
+    "chunk_id": "f1c23c7e8763d021f504482babec448a571e5303694c8dbd906d31716ee983d2",
+    "chunk_name": "tenantorchestration",
+    "chunk_type": "package",
+    "file_path": "internal/adapters/secondary/rest/tenantorchestration/stub_tenant_orchestration_service.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"database visitor implementation in Go for system management\"",
+    "chunk_id": "0dfae68806abdfbf6cb0faa238d3c78b64309adf8ec117d5d02e428d7002a050",
+    "chunk_name": "db",
+    "chunk_type": "package",
+    "file_path": "cmd/system-management/sm/context/plugins/db/visitor.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find gentleman package for system management context plugins",
+    "chunk_id": "1fc6a6729fe62f99f375e9e84d29b4c7e8183253c38c4f30af281c09a45ab0bb",
+    "chunk_name": "gentleman",
+    "chunk_type": "package",
+    "file_path": "cmd/system-management/sm/context/plugins/gentleman/gentleman.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"secondary package factory in viya-system-management\"",
+    "chunk_id": "2f22d640652ab3c6812b0657922bfaea97eb488c9938cc156438b3215d0fdf77",
+    "chunk_name": "secondary",
+    "chunk_type": "package",
+    "file_path": "internal/adapters/secondary/factory.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find package tools in viya-system-management internal adapters primary tools",
+    "chunk_id": "5f3e76994684398836a2aeaacedc96456d088c5550c61166230b945770108348",
+    "chunk_name": "tools",
+    "chunk_type": "package",
+    "file_path": "internal/adapters/primary/tools/tools.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "Go constants for HTTP handler configuration including tenant ID path parameter and pagination query limits",
+    "chunk_id": "7b6ea548806bda6a8553a4df00774a8cf4705382c1c1d508052f2bcbf1a3cd1b",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/adapters/primary/http/handlers/tenant_management_handler.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"error codes for tenant management system including TenantNotFound and ImmutableFieldModified\"",
+    "chunk_id": "5102c084ebff9e7fc35d65ab1e4cb7a6c6041379922d0faaecb1b2e92ac79d7e",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/core/errors/error_codes.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "Go constants for SAS application ingress host and services URL property names",
+    "chunk_id": "6cc5ee8b6257405e10b72edac4a46a1113878f343f263f37198271308f3ca033",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/util/util.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find constants for database type environment variable and postgres database type in tools package",
+    "chunk_id": "5ba030adfac1b8e2c859e731cd6627cfa17d0886c932ea458c20109d7c245d40",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/adapters/primary/tools/tools.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find constant for application/json MIME type in http package",
+    "chunk_id": "ccb32ecc2d444d4d788f24e55afaa98657153878408da054eb660daac2ca6a1f",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/adapters/primary/http/routes.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "test function for deleting a tenant with mock API response and error assertion in Go",
+    "chunk_id": "71e7912272534e46504e682021b558b7a5dcba003d3c4026795ef090bacfd1f0",
+    "chunk_name": "TestDeleteTenant",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/secondary/rest/tenantorchestration/platform_tenant_orchestration_service_test.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find function that checks for duplicate strings in a slice and returns the first duplicate found",
+    "chunk_id": "155f8ef87d5e21381752cb10edc10e1268cb2bee70293ffdd615d8e7331e32b8",
+    "chunk_name": "hasDuplicateStr",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/primary/http/handlers/tenant_management_handler.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "function that creates tenant orchestration service with production client or stub service based on development mode",
+    "chunk_id": "37433ef05e904b125ea858b35cf807a1b7eb127ac4ce24164146fe6753d22ac1",
+    "chunk_name": "CreateTenantOrchestrationService",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/secondary/factory.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "test for GetTenants function in tenantorchestration package with mock HTTP responses and tenant domain objects",
+    "chunk_id": "c4d55a5167d703d68f197fa34307162c57173a8077c0ae1cb2a9c2e0b2422a42",
+    "chunk_name": "TestGetTenants",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/secondary/rest/tenantorchestration/platform_tenant_orchestration_service_test.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "test function for creating a tenant with mock dependencies and HTTP PUT request to tenant orchestration service",
+    "chunk_id": "850b6e6c5a107e5342bba828cc2cfd6e79ade931b82ca719c0a5bb0e3e6e51aa",
+    "chunk_name": "TestCreateTenant",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/secondary/rest/tenantorchestration/platform_tenant_orchestration_service_test.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find visitor GetKey method returning DataServer string in viya-system-management",
+    "chunk_id": "486814a694abc4a64ac7854a60c937bde465736c662fa07c07127e01adf9d145",
+    "chunk_name": "GetKey",
+    "chunk_type": "method",
+    "file_path": "cmd/system-management/sm/context/plugins/db/visitor.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "method that retrieves a string value from TestConfig's Values map using a key and returns the value and a boolean indicating if the key exists",
+    "chunk_id": "fadd0e80a299c1974ae28da170f637fa26b9ee82e92c0159755c9650cb5e2474",
+    "chunk_name": "LookupString",
+    "chunk_type": "method",
+    "file_path": "internal/adapters/secondary/rest/testutil/test_config.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "method that retrieves services grouped by their tags from a registry returning a map of tag names to service lists",
+    "chunk_id": "1f2dd382f6119663fc7dac95fde37b48ca9f83e82caeb5b870363e4cae18dd9d",
+    "chunk_name": "FindServicesWithTags",
+    "chunk_type": "method",
+    "file_path": "cmd/system-management/sm/context/plugins/db/visitor.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"middleware visitor order method in Go system management\"",
+    "chunk_id": "3817cd8dc906b98015affb7a89d157f8cf89fbcf31b17c2739bd448ee95deb50",
+    "chunk_name": "Order",
+    "chunk_type": "method",
+    "file_path": "cmd/system-management/sm/context/plugins/db/visitor.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "how to create a tenant with duplicate admin email validation in Go",
+    "chunk_id": "860fdb44e4072383409c557980bc6da47b8b00a26383c7cba6c8234795b3b28c",
+    "chunk_name": "CreateTenant",
+    "chunk_type": "method",
+    "file_path": "internal/adapters/primary/http/handlers/tenant_management_handler.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"stub logon service struct with configuration getter for testing\"",
+    "chunk_id": "018afcc85d7f21b27682a73c62fbc2b4355bf36749af1c40056d5143ae7f0377",
+    "chunk_name": "stubLogonService",
+    "chunk_type": "struct",
+    "file_path": "internal/adapters/secondary/rest/logon/stub_logon_service.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "ClientPlugin struct with ResponseReadAndClosePlugin field for gentleman HTTP client in viya-system-management",
+    "chunk_id": "4c2a9f8dedc63d5cf121736efab838b638b470a7f96a26ccf3bccbac72ee13c3",
+    "chunk_name": "ClientPlugin",
+    "chunk_type": "struct",
+    "file_path": "cmd/system-management/sm/context/plugins/gentleman/gentleman.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"RecordNotFoundError struct in storage package for missing record errors\"",
+    "chunk_id": "f2d196bb38c69c505a517c9a106da1c6b0f9c2088546b44b2d3ed0ac8267de30",
+    "chunk_name": "RecordNotFoundError",
+    "chunk_type": "struct",
+    "file_path": "internal/adapters/secondary/storage/errors.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "platformLogonService struct with ConfigurationGetter, appName, and gentleman.Client for authentication",
+    "chunk_id": "a8a4af2d07a7cb58fbc514fa692aa950295cdcb2e3ac4b90b8cd8afcf8faef36",
+    "chunk_name": "platformLogonService",
+    "chunk_type": "struct",
+    "file_path": "internal/adapters/secondary/rest/logon/platform_logon_service.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"Property struct with TenantID and Key-Value pairs in tenant management domain\"",
+    "chunk_id": "2139fc268a93b6dbbe2c16461856249e83a7f9255c191c62bfe818664721e5c1",
+    "chunk_name": "Property",
+    "chunk_type": "struct",
+    "file_path": "internal/core/domain/tenant_management.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find Config interface with GetProperty method in Go codebase",
+    "chunk_id": "57f4b27506812a59aff47fc5d7238dfab573b93fbfc9b8646cbc5a7029547904",
+    "chunk_name": "Config",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/config.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "TenantOrchestrationService interface for managing tenant lifecycle operations including creation retrieval updates deletion and state transition tracking",
+    "chunk_id": "c53e3aa6d98e98a8e35d4b4eb484c97fc24fe25aa1ca28606c210d9c39a1464b",
+    "chunk_name": "TenantOrchestrationService",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/services.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "interface for client registration and token acquisition in authentication system",
+    "chunk_id": "65b7c20c57e8e914e95a185c4e9e88ada3d80da564baa3ca55363a1ee1b0692d",
+    "chunk_name": "LogonService",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/logon.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "TenantManagementRepository interface with Get, Create, Update, Delete, GetTenants, and GetTenantByShortName methods",
+    "chunk_id": "cc1b10cb91f9e311e84f5b43ee52293b98ea02d1817dad5b7ff27aadd0fbe401",
+    "chunk_name": "TenantManagementRepository",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/repositories.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find constant logMessages in i18n package for internationalized log messages",
+    "chunk_id": "c5f434b9b6946b50e19c8045b720c7c3f8f9f3a0147f35b36bd2ec9a52c98db1",
+    "chunk_name": "logMessages",
+    "chunk_type": "const",
+    "file_path": "i18n/i18n_messages_log.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find constant stubUser with value stub-service in tenantorchestration package",
+    "chunk_id": "4564b3395aeb7a34280bf071483fb588adff73518e01f6e1120a0f24323f5b39",
+    "chunk_name": "stubUser",
+    "chunk_type": "const",
+    "file_path": "internal/adapters/secondary/rest/tenantorchestration/stub_tenant_orchestration_service.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"localized error messages for tenant management API in Go\"",
+    "chunk_id": "42532fdd19abfa077a79eeeb3819de4736e8fe09df12fa31bc00ca57aea1e5c6",
+    "chunk_name": "l10nMessages",
+    "chunk_type": "const",
+    "file_path": "i18n/i18n_messages_api.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find localization message constant for tenant does not exist error in i18n package",
+    "chunk_id": "21089b375a73c5278850ba828710f9398888e8d6b1465640385711d32a921d5f",
+    "chunk_name": "l10nMessages",
+    "chunk_type": "const",
+    "file_path": "internal/i18n/i18n_messages_api.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "find constant loggerName in tenant management service for system management logging",
+    "chunk_id": "9ee13757886ef044f3a8cc4de2a2f908eaed23147564705deddf036898d40145",
+    "chunk_name": "loggerName",
+    "chunk_type": "const",
+    "file_path": "internal/core/services/tenant_management_service.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"state transitions map for tenant desired states in Go code\"",
+    "chunk_id": "e9e1dd1dba6bacb6b6c17cdd400a1fedc2debce30e692f3a37a8e0e935adfc75",
+    "chunk_name": "allowedStateTransitions",
+    "chunk_type": "var",
+    "file_path": "internal/core/services/state_transitions.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "global boolean variable isDevelopmentMode in util package for development mode tracking",
+    "chunk_id": "eb7b51acbcf95e3b83ae156ef56a452d568a44672296b1f7a8052d4e4e807ef1",
+    "chunk_name": "isDevelopmentMode",
+    "chunk_type": "var",
+    "file_path": "internal/util/util.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "global variable for internationalization bundle in i18n package",
+    "chunk_id": "c8df398fe66b37a1658d04e7c8aa564def7d0060e7e79be88f4ef990f89fe709",
+    "chunk_name": "l10nBundle",
+    "chunk_type": "var",
+    "file_path": "i18n/bundle.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "\"list of desired tenant orchestration states excluding transitional and local-only states\"",
+    "chunk_id": "703e7ed20667372f588149934aaeadc33cb12916bcf21508433ef1f4cc7274b5",
+    "chunk_name": "orchestrationDesiredStates",
+    "chunk_type": "var",
+    "file_path": "internal/core/services/state_transitions.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "global variable logBundle of type si18n DefaultBundle in i18n package",
+    "chunk_id": "bdc199e5a540ef56754eaaf3bf58d61f7e0b76d04651c274e72bf50cbf4a988e",
+    "chunk_name": "logBundle",
+    "chunk_type": "var",
+    "file_path": "i18n/bundle.go",
+    "repo_name": "viya-system-management"
+  },
+  {
+    "query": "logon package for handling login-related functionality in Go",
+    "chunk_id": "94e4b964a963bf26afa61196a02b4a86b9c8554fbc3ae622b2a315cdcd1b00a1",
+    "chunk_name": "logon",
+    "chunk_type": "package",
+    "file_path": "internal/adapters/secondary/rest/logon/stub_logon_service.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find Go test file with functional build tags in viya-tenant-orchestration api package",
+    "chunk_id": "0f16f1d4e44a9bc9720dd4262fcd219abdc92079d4eaa590de9356b6b39fdfc6",
+    "chunk_name": "api",
+    "chunk_type": "package",
+    "file_path": "internal/test/api/main_test.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "delete tenant orchestration HTTP handler in Go",
+    "chunk_id": "ed5452bd77adbb4d513659773cd244735f92024fa157953f6cf2c62fb046974d",
+    "chunk_name": "handlers",
+    "chunk_type": "package",
+    "file_path": "internal/adapters/primary/http/handlers/delete_tenant_orchestration_handler.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find domain error code package in viya-tenant-orchestration",
+    "chunk_id": "0e2f77ec9a32fab837d2927771ccb67db44e02e23206dac8b765b76d4d6c6309",
+    "chunk_name": "domain",
+    "chunk_type": "package",
+    "file_path": "internal/core/domain/error_code.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find package apimeta for API metadata utilities in viya-tenant-orchestration",
+    "chunk_id": "bdf3c773042fd042f9f1217325e4eb8484854ed05d22b7527b5bd792bcf1f9e4",
+    "chunk_name": "apimeta",
+    "chunk_type": "package",
+    "file_path": "internal/apimeta/apiMeta.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find constants for default and maximum query parameter limits in viya-tenant-orchestration handlers",
+    "chunk_id": "57a6a01be804844e20b68566eefe808bca4abaa51405c58eb75ee80cba85fee9",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/adapters/primary/http/handlers/get_tenants_orchestration_handler.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find constants for default and maximum limits on state transitions in Go code",
+    "chunk_id": "0c17fc43c463b69a9c58b2c2ab0113794ebe5ec89053d4986f826b996e7f5d22",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/adapters/primary/http/handlers/get_state_transitions_handler.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "RabbitMQ message queue constants for tenant orchestration events in viya-tenant-orchestration",
+    "chunk_id": "3791a8514de1a737f28f023752e492d8b8814e3bf507c3a1026dcdbc03dd997a",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/test/tenant_helpers.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "\"constants for tenant orchestration service environment variables and lifecycle actions\"",
+    "chunk_id": "00566ab16ad9c9f751a02c39b550cd7d80eb356f0f11bcc4d7870a111e739ad5",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/core/services/create_or_update_tenant.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find error code for invalid tenant ID in viya-tenant-orchestration domain package",
+    "chunk_id": "4dbc0df82a201116d4464eb2173af906b5aab48f24b2f619a4449550c4327309",
+    "chunk_name": "",
+    "chunk_type": "block",
+    "file_path": "internal/core/domain/error_code.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "\"test function for validating user-requested tenant state transitions including onboarded active suspended offboarded states\"",
+    "chunk_id": "1584bd35504bf3cc2ccd63e0cfb342f473ccbf2e38dafc5ae7296c905b98f100",
+    "chunk_name": "TestIsValidUserRequestedStateTransition",
+    "chunk_type": "function",
+    "file_path": "internal/core/services/state_transitions_test.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "function that parses HTTP request query parameters for tenant orchestration with basic filter support for id, shortName, desiredState, currentState, creationTimeStamp, createdBy, modifiedTimeStamp, modifiedBy and enforces a maximum limit",
+    "chunk_id": "7b38721618498aa5f7cde52a50f3acef0be4475be90d710a9a68e4250f3e9dff",
+    "chunk_name": "getRequestParams",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/primary/http/handlers/get_tenants_orchestration_handler.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "\"test function for tenant deletion allowed states in TenantOrchestrationService\"",
+    "chunk_id": "d1b36f68474079ab4023ef671e76a0b6b4dceec589c6d7c74a9a26e2637d9c03",
+    "chunk_name": "TestCanDeleteFromState",
+    "chunk_type": "function",
+    "file_path": "internal/core/services/state_transitions_test.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "function that sets up and tears down Docker containers for testing in Go",
+    "chunk_id": "27289153ef68f4bd28d1eb72166c98897d00c4a88c055cabbf69ec392b0a332a",
+    "chunk_name": "TestMain",
+    "chunk_type": "function",
+    "file_path": "internal/test/main_test.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "function that parses HTTP request query parameters for state transitions with fields like stateTransitionId, sourceState, and triggeredBy",
+    "chunk_id": "d2a450e2d62f8f2e90d38748b2121af695d02ada017b3e3cd31a7dd3a81f4664",
+    "chunk_name": "getStateTransitionsQueryParams",
+    "chunk_type": "function",
+    "file_path": "internal/adapters/primary/http/handlers/get_state_transitions_handler.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "method that deactivates identity providers for a zone in stubLogonService returning nil",
+    "chunk_id": "a73b13d3bc4efcb7277c30af3fc86dba4b5572fecd245441ff91a1b1b7a8cb06",
+    "chunk_name": "DeactivateIdentityProviders",
+    "chunk_type": "method",
+    "file_path": "internal/adapters/secondary/rest/logon/stub_logon_service.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "stub implementation of CreateIdentityZone method in logon package that returns nil",
+    "chunk_id": "251beea904ecf6c61dcae970ca16dbbc094de6ac9afbd31b2216c5d54dfe4b43",
+    "chunk_name": "CreateIdentityZone",
+    "chunk_type": "method",
+    "file_path": "internal/adapters/secondary/rest/logon/stub_logon_service.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "\"method to create service tenancy state record in tenant orchestration repository\"",
+    "chunk_id": "b4616cbc020f57a49f4bca37080f9619a49d4d8f170e55a696c51815146ba55a",
+    "chunk_name": "CreateServiceTenancyState",
+    "chunk_type": "method",
+    "file_path": "internal/adapters/secondary/storage/service_tenancy_repository.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find method to retrieve a single step by transitionID and stepID in TenantOrchestrationService",
+    "chunk_id": "2c2e3a0982d0f44b60ba083e36fcf9ef94983c3e0b818623ef299754c6d73fb1",
+    "chunk_name": "GetTransitionStep",
+    "chunk_type": "method",
+    "file_path": "internal/core/services/get_transition_step.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "\"test case for deleting non-existent tenant with status code 204 in viya-tenant-orchestration\"",
+    "chunk_id": "2a090819c54d092cefa040d30801e16fba27c9a4a72f965c7e208dee871da7c7",
+    "chunk_name": "TestDeleteNonExistentTenant",
+    "chunk_type": "method",
+    "file_path": "internal/test/api/delete_tenant_test.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find stubLogonService struct in viya-tenant-orchestration repository",
+    "chunk_id": "a45bb5ad7f0f99eeed9be78827472169a847531be3f0b6a402dda7e223ea21ad",
+    "chunk_name": "stubLogonService",
+    "chunk_type": "struct",
+    "file_path": "internal/adapters/secondary/rest/logon/stub_logon_service.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find struct that embeds HarnessTestSuite for testing purposes in viya-tenant-orchestration",
+    "chunk_id": "6769a25d19375423c6fc9b5e2e16c64f9e44f13b2a547e4de69bd78e30f3eed7",
+    "chunk_name": "HarnessTestSuiteTest",
+    "chunk_type": "struct",
+    "file_path": "internal/test/harness_test_suite_test.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find onboardingJobResult struct in create_or_update_tenant.go that holds outputs of startOnboardingJob",
+    "chunk_id": "66f099932d4249d416a0343e2c9fc4f699c517ad2cd4ea1e779c493dfd32a00c",
+    "chunk_name": "onboardingJobResult",
+    "chunk_type": "struct",
+    "file_path": "internal/core/services/create_or_update_tenant.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find LocalizedError struct with MessageKey MessageArgs and ErrorCode fields in Go errors package",
+    "chunk_id": "82efd90ebd539d95f596dcec4f7c3b81b6a92a915e8ffd37733dad86cf94ad5c",
+    "chunk_name": "LocalizedError",
+    "chunk_type": "struct",
+    "file_path": "internal/core/errors/errors.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find tenant orchestration repository struct in viya tenant orchestration codebase",
+    "chunk_id": "ca5a9c8cf2e783f92c897f5c7a5ba32f9085c9a24dc2aa72d7f44a1cee949af0",
+    "chunk_name": "tenantOrchestrationRepository",
+    "chunk_type": "struct",
+    "file_path": "internal/adapters/secondary/storage/tenant_orchestration_repository.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "TenantOrchestrationRepository interface methods for managing tenants services and tenancy states including CRUD operations and querying capabilities",
+    "chunk_id": "b2f50b45ff0ac4d8954ff783dc18c1deead045c16eeb46c498796741166822c9",
+    "chunk_name": "TenantOrchestrationRepository",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/repositories.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "LogonService interface for managing identity providers and zones with methods like EnableIdentityProviders, CreateIdentityZone, IdentityZoneExists, and DeactivateIdentityProviders",
+    "chunk_id": "14eb0a3bf54a756d1cc96a10be69427e991863591e45d345508ee4feab5b27f8",
+    "chunk_name": "LogonService",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/logon.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "Kubernetes client interface with methods for managing pod templates and jobs in Go",
+    "chunk_id": "69b6a6f5877ebf1e4864557fc4946c362d02f30647f00451d9461aef246be232",
+    "chunk_name": "KubernetesClient",
+    "chunk_type": "interface",
+    "file_path": "internal/core/ports/kubernetes.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "global Config variable for tenant-orchestration API metadata with service ID and version",
+    "chunk_id": "171ca8c86e189ef8ed854cfd2219fccce62fa850151a0455e1ad7681d47b21e9",
+    "chunk_name": "Config",
+    "chunk_type": "var",
+    "file_path": "internal/apimeta/apiMeta.go",
+    "repo_name": "viya-tenant-orchestration"
+  },
+  {
+    "query": "find ErrorCode type alias in viya-tenant-orchestration errors package",
+    "chunk_id": "7c8267cb76fc5cf845d1ec76f537d1f7008bbbec83e0770907b1e11e32b7ede6",
+    "chunk_name": "ErrorCode",
+    "chunk_type": "type_alias",
+    "file_path": "internal/core/errors/errors.go",
+    "repo_name": "viya-tenant-orchestration"
+  }
+]

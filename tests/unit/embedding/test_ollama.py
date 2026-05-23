@@ -152,7 +152,7 @@ def test_custom_batch_size():
 
 def test_default_max_chars():
     fn = OllamaEmbeddingFunction()
-    assert fn._max_chars == 4000
+    assert fn._max_chars == 2000
 
 
 def test_inputs_truncated_to_max_chars():

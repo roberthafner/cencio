@@ -108,6 +108,7 @@ Options:
 | `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
 | `--top-k` | `5` | Number of results to return |
 | `--repo` | *(all repos)* | Filter results to a specific repository name |
+| `--include-tests` | `false` | Include test code chunks in results (excluded by default) |
 | `--chroma-path` | `data/vector_store/chroma` | ChromaDB storage directory |
 | `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
@@ -127,6 +128,9 @@ python scripts/query.py "FindUserByID" --mode keyword
 
 # Filter to one repo
 python scripts/query.py "context propagation" --repo my-project
+
+# Include test code in results
+python scripts/query.py "test helpers" --include-tests
 ```
 
 ### Inspecting Chunks

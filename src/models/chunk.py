@@ -73,6 +73,10 @@ class Chunk:
     # Extensible metadata for additional information.
     metadata: Dict[str, str] = field(default_factory=dict)
 
+    # Indicates whether this chunk comes from test code (e.g., _test.go files
+    # or files that import the "testing" package).
+    is_test: bool = False
+
     # Timestamp of when the chunk was created/parsed.
     created_at: datetime.datetime = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))
 
