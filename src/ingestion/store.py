@@ -306,7 +306,27 @@ class ChunkStore:
         params.append(top_k)
 
         rows = self._db.execute(sql, params).fetchall()
-        return [{"id": row["chunk_id"], "rank": row["rank"]} for row in rows]
+        if not rows:
+            return []
+
+        # Fetch metadata and content from ChromaDB
+        chunk_ids = [row["chunk_id"] for row in rows]
+        ranks = {row["chunk_id"]: row["rank"] for row in rows}
+
+        fetched = self._collection.get(
+            ids=chunk_ids,
+            include=["metadatas", "documents"],
+        )
+
+        # Build results preserving the rank order from SQLite
+        result_by_id = {
+            id_: {"id": id_, "metadata": meta, "content": doc, "rank": ranks[id_]}
+            for id_, meta, doc in zip(
+                fetched["ids"], fetched["metadatas"], fetched["documents"]
+            )
+        }
+
+        return [result_by_id[cid] for cid in chunk_ids if cid in result_by_id]
 
     def hybrid_search(
         self,
