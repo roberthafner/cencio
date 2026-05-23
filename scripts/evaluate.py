@@ -12,9 +12,9 @@ from src.evaluation.golden_set import load_golden_set
 from src.evaluation.harness import evaluate
 from src.ingestion.store import ChunkStore
 
-_DEFAULT_GOLDEN = _PROJECT_ROOT / "tests" / "evaluation" / "golden_mux.json"
-_DEFAULT_CHROMA = _PROJECT_ROOT / "build" / "database" / "chroma"
-_DEFAULT_SQLITE = _PROJECT_ROOT / "build" / "database" / "index.db"
+_DEFAULT_GOLDEN = _PROJECT_ROOT / "tests" / "evaluation" / "golden.json"
+_DEFAULT_CHROMA = _PROJECT_ROOT / "data" / "vector_store" / "chroma"
+_DEFAULT_SQLITE = _PROJECT_ROOT / "data" / "vector_store" / "index.db"
 
 
 def main() -> None:
