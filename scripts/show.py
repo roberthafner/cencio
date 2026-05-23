@@ -29,8 +29,11 @@ _LOW_QUALITY_NAMES = frozenset({
 })
 
 
-def _is_low_quality_chunk(name: str, chunk_type: str) -> bool:
+def _is_low_quality_chunk(name: str, chunk_type: str, doc: str = "") -> bool:
     """Return True if this chunk is too generic to evaluate meaningfully."""
+    # Unnamed blocks with good documentation are retrievable
+    if not name and doc and len(doc.strip()) >= 50:
+        return False
     if name in _LOW_QUALITY_NAMES:
         return True
     # Single-letter names are usually not retrievable
@@ -199,13 +202,18 @@ def main() -> None:
 
             result = collection.get(**kwargs)
 
+            # Get doc fields from SQLite for all chunks
+            all_ids = result["ids"]
+            sqlite_docs = _sqlite_extras(db, all_ids)
+
             # Filter for low-quality chunks
             low_quality = [
-                (cid, meta, doc)
-                for cid, meta, doc in zip(result["ids"], result["metadatas"], result["documents"])
+                (cid, meta, content)
+                for cid, meta, content in zip(result["ids"], result["metadatas"], result["documents"])
                 if _is_low_quality_chunk(
                     meta.get("name", ""),
-                    meta.get("chunk_type", "")
+                    meta.get("chunk_type", ""),
+                    sqlite_docs.get(cid, {}).get("doc", "")
                 )
             ]
 
