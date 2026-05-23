@@ -15,7 +15,7 @@ class OllamaEmbeddingFunction:
         model: str = "nomic-embed-text:v1.5",
         base_url: str = "http://localhost:11434",
         batch_size: int = 32,
-        max_chars: int = 4000,
+        max_chars: int = 2000,
     ) -> None:
         self._model = model
         self._url = f"{base_url.rstrip('/')}/api/embed"
