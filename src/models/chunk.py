@@ -53,6 +53,15 @@ class Chunk:
     # The end line number in the source and end.
     end_line: int
 
+    # Indicates whether this chunk comes from test code (e.g., _test.go files
+    # or files that import the "testing" package).
+    is_test: bool
+
+    # Indicates whether this chunk has a generic name that makes it hard to
+    # retrieve accurately (e.g., single-letter names, common identifiers like
+    # "err", "ctx", "_").
+    low_quality: bool
+
     # The identifier of the parent scope (e.g., the Struct ID if this is a Method).
     # This allows for explicit hierarchical relationship traversal.
     parent_id: Optional[str] = None
@@ -72,10 +81,6 @@ class Chunk:
 
     # Extensible metadata for additional information.
     metadata: Dict[str, str] = field(default_factory=dict)
-
-    # Indicates whether this chunk comes from test code (e.g., _test.go files
-    # or files that import the "testing" package).
-    is_test: bool = False
 
     # Timestamp of when the chunk was created/parsed.
     created_at: datetime.datetime = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))

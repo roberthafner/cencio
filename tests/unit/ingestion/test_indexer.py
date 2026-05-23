@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from src.ingestion.indexer import Indexer
+from src.ingestion.indexer import Indexer, is_low_quality_chunk, LOW_QUALITY_NAMES
 from src.ingestion.repository import GitRepository
 from src.ingestion.store import ChunkStore
 
@@ -181,3 +181,86 @@ def test_deleted_file_does_not_affect_remaining_files(tmp_path, store):
 
     assert store.chunk_count_for_file("testrepo", "function_example.go") > 0
     assert "function_example.go" in store.get_all_file_hashes("testrepo")
+
+
+# ------------------------------------------------------------------
+# is_low_quality_chunk tests
+# ------------------------------------------------------------------
+
+class TestIsLowQualityChunk:
+    """Tests for the is_low_quality_chunk function."""
+
+    def test_names_in_low_quality_set_are_low_quality(self):
+        """Names in LOW_QUALITY_NAMES should be considered low quality."""
+        for name in LOW_QUALITY_NAMES:
+            assert is_low_quality_chunk(name, "function") is True, f"{name!r} should be low quality"
+
+    def test_empty_name_is_low_quality(self):
+        """Empty name should be low quality."""
+        assert is_low_quality_chunk("", "function") is True
+
+    def test_blank_identifier_is_low_quality(self):
+        """Blank identifier '_' should be low quality."""
+        assert is_low_quality_chunk("_", "var") is True
+
+    def test_common_identifiers_are_low_quality(self):
+        """Common identifiers like err, ctx, ok should be low quality."""
+        assert is_low_quality_chunk("err", "var") is True
+        assert is_low_quality_chunk("ctx", "var") is True
+        assert is_low_quality_chunk("ok", "var") is True
+
+    def test_loop_counters_are_low_quality(self):
+        """Loop counters i, j, k, n, m should be low quality."""
+        assert is_low_quality_chunk("i", "var") is True
+        assert is_low_quality_chunk("j", "var") is True
+        assert is_low_quality_chunk("k", "var") is True
+        assert is_low_quality_chunk("n", "var") is True
+        assert is_low_quality_chunk("m", "var") is True
+
+    def test_single_letter_names_are_low_quality(self):
+        """Any single-letter name should be low quality."""
+        assert is_low_quality_chunk("x", "function") is True
+        assert is_low_quality_chunk("y", "var") is True
+        assert is_low_quality_chunk("z", "const") is True
+        assert is_low_quality_chunk("a", "method") is True
+
+    def test_short_var_const_names_are_low_quality(self):
+        """Very short names (<=2 chars) for var/const are low quality."""
+        assert is_low_quality_chunk("id", "var") is True
+        assert is_low_quality_chunk("db", "const") is True
+        assert is_low_quality_chunk("tx", "var") is True
+
+    def test_short_names_for_other_types_not_low_quality(self):
+        """Short names for non-var/const types are not automatically low quality."""
+        assert is_low_quality_chunk("ID", "function") is False
+        assert is_low_quality_chunk("Do", "method") is False
+        assert is_low_quality_chunk("TX", "struct") is False
+
+    def test_normal_names_not_low_quality(self):
+        """Normal descriptive names should not be low quality."""
+        assert is_low_quality_chunk("FindUser", "function") is False
+        assert is_low_quality_chunk("UserService", "struct") is False
+        assert is_low_quality_chunk("HandleRequest", "method") is False
+        assert is_low_quality_chunk("MaxRetries", "const") is False
+        assert is_low_quality_chunk("defaultTimeout", "var") is False
+
+    def test_unnamed_block_with_good_doc_not_low_quality(self):
+        """Unnamed blocks with sufficient documentation (>=50 chars) are not low quality."""
+        good_doc = "This is a detailed documentation comment that explains what this block does in the codebase."
+        assert len(good_doc.strip()) >= 50
+        assert is_low_quality_chunk("", "block", doc=good_doc) is False
+
+    def test_unnamed_block_with_short_doc_is_low_quality(self):
+        """Unnamed blocks with insufficient documentation are low quality."""
+        short_doc = "Short doc"
+        assert len(short_doc.strip()) < 50
+        assert is_low_quality_chunk("", "block", doc=short_doc) is True
+
+    def test_unnamed_block_with_empty_doc_is_low_quality(self):
+        """Unnamed blocks with no documentation are low quality."""
+        assert is_low_quality_chunk("", "block", doc="") is True
+
+    def test_unnamed_block_with_whitespace_doc_is_low_quality(self):
+        """Unnamed blocks with only whitespace doc are low quality."""
+        whitespace_doc = "   \n\t   "
+        assert is_low_quality_chunk("", "block", doc=whitespace_doc) is True

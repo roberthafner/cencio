@@ -124,6 +124,7 @@ def _extract_package(tree, source: bytes, file_path: str, is_test: bool) -> Opti
         doc=doc,
         signature="",
         is_test=is_test,
+        low_quality=False,
     )
 
 
@@ -173,6 +174,7 @@ def _extract_functions(tree, source: bytes, file_path: str, package_name: str, i
             doc=doc,
             signature=signature,
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks
@@ -222,6 +224,7 @@ def _extract_structs(tree, source: bytes, file_path: str, package_name: str, is_
             doc=doc,
             signature=f"type {name} struct",
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks
@@ -280,6 +283,7 @@ def _extract_methods(
             signature=signature,
             parent_id=parent_id,
             is_test=is_test,
+            low_quality=False,
         )
         chunks.append(method_chunk)
 
@@ -348,6 +352,7 @@ def _extract_interfaces(tree, source: bytes, file_path: str, package_name: str, 
             doc=doc,
             signature=f"type {name} interface",
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks
@@ -398,6 +403,7 @@ def _extract_consts(tree, source: bytes, file_path: str, package_name: str, is_t
             doc=doc,
             signature=signature,
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks
@@ -448,6 +454,7 @@ def _extract_vars(tree, source: bytes, file_path: str, package_name: str, is_tes
             doc=doc,
             signature=signature,
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks
@@ -512,6 +519,7 @@ def _extract_blocks(tree, source: bytes, file_path: str, package_name: str, is_t
             doc=doc,
             signature="",
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks
@@ -560,6 +568,7 @@ def _extract_type_aliases(tree, source: bytes, file_path: str, package_name: str
             doc=doc,
             signature=signature,
             is_test=is_test,
+            low_quality=False,
         ))
 
     return chunks

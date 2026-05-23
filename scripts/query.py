@@ -78,6 +78,10 @@ def main() -> None:
         "--include-tests", action="store_true",
         help="Include test code chunks in results (excluded by default)",
     )
+    parser.add_argument(
+        "--include-low-quality", action="store_true",
+        help="Include low-quality chunks in results (excluded by default)",
+    )
     parser.add_argument("--chroma-path", type=Path, default=_DEFAULT_CHROMA)
     parser.add_argument("--sqlite-path", type=Path, default=_DEFAULT_SQLITE)
     parser.add_argument("--ollama-url", default="http://localhost:11434")
@@ -96,13 +100,16 @@ def main() -> None:
     try:
         if args.mode == "hybrid":
             results = store.hybrid_search(args.query, args.top_k, args.repo,
-                                          include_tests=args.include_tests)
+                                          include_tests=args.include_tests,
+                                          include_low_quality=args.include_low_quality)
         elif args.mode == "semantic":
             results = store.semantic_search(args.query, args.top_k, args.repo,
-                                            include_tests=args.include_tests)
+                                            include_tests=args.include_tests,
+                                            include_low_quality=args.include_low_quality)
         else:
             results = store.keyword_search(args.query, args.top_k, args.repo,
-                                           include_tests=args.include_tests)
+                                           include_tests=args.include_tests,
+                                           include_low_quality=args.include_low_quality)
 
         _print_results(results, args.query, args.mode, args.top_k)
     finally:

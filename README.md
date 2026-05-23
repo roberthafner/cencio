@@ -109,6 +109,7 @@ Options:
 | `--top-k` | `5` | Number of results to return |
 | `--repo` | *(all repos)* | Filter results to a specific repository name |
 | `--include-tests` | `false` | Include test code chunks in results (excluded by default) |
+| `--include-low-quality` | `false` | Include low-quality chunks in results (excluded by default) |
 | `--chroma-path` | `data/vector_store/chroma` | ChromaDB storage directory |
 | `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
@@ -131,6 +132,9 @@ python scripts/query.py "context propagation" --repo my-project
 
 # Include test code in results
 python scripts/query.py "test helpers" --include-tests
+
+# Include low-quality chunks (e.g., single-letter names, common identifiers)
+python scripts/query.py "error handling" --include-low-quality
 ```
 
 ### Inspecting Chunks
@@ -151,7 +155,7 @@ At least one filter is required. Filters can be combined (AND logic):
 | `--file STR` | Substring match on file path |
 | `--type TYPE` | Chunk type: `package`, `block`, `function`, `method`, `struct`, `interface`, `const`, `var`, `type_alias` |
 | `--package STR` | Substring match on package name |
-| `--low-quality` | Show chunks with generic names that are hard to retrieve |
+| `--include-low-quality` | Include low-quality chunks (excluded by default) |
 | `--limit N` | Max chunks to display (default: 20) |
 
 Examples:
@@ -166,17 +170,13 @@ python scripts/show.py --repo viya-sonder --type type_alias
 # Look up a chunk directly by ID (e.g. from evaluation miss output)
 python scripts/show.py --id 4186ed572baa1c6f475336a915f3426b1089601579b183892d6a1f53a8d38b5e
 
-# Find low-quality chunks that may hurt retrieval metrics
-python scripts/show.py --low-quality --limit 100
-
-# Low-quality chunks filtered by repo or type
-python scripts/show.py --low-quality --repo viya-sonder
-python scripts/show.py --low-quality --type var
+# Include low-quality chunks in results (excluded by default)
+python scripts/show.py --repo viya-sonder --type var --include-low-quality
 ```
 
 Each result shows the full untruncated content from ChromaDB, plus the `doc` and `signature` fields from SQLite.
 
-The `--low-quality` flag identifies chunks with generic names (e.g., `err`, `_`, `ctx`, single-letter variables) that are nearly impossible to retrieve accurately. This helps you understand which chunks may be hurting your evaluation metrics.
+By default, low-quality chunks are excluded from results. Low-quality chunks have generic names (e.g., `err`, `_`, `ctx`, single-letter variables) that are nearly impossible to retrieve accurately. Use `--include-low-quality` to include them in results.
 
 ### Evaluating Retrieval Quality
 

@@ -23,6 +23,7 @@ def _make_chunk(
     content: str,
     file_path: str = "main.go",
     is_test: bool = False,
+    low_quality: bool = False,
 ) -> Chunk:
     from src.models.chunk import generate_id
     return Chunk(
@@ -37,6 +38,7 @@ def _make_chunk(
         doc=f"// {name} does something",
         signature=f"func {name}()",
         is_test=is_test,
+        low_quality=low_quality,
     )
 
 
@@ -447,3 +449,180 @@ def test_only_test_chunks_returns_empty_when_excluded(store):
 
     results = store.hybrid_search("TestOnly", top_k=10)
     assert len(results) == 0
+
+
+# ------------------------------------------------------------------
+# include_low_quality filter
+# ------------------------------------------------------------------
+
+def test_upsert_stores_low_quality_metadata(store):
+    """Verify low_quality is stored in ChromaDB metadata."""
+    low_quality_chunk = _make_chunk("err", "var err error", "main.go", low_quality=True)
+    store.upsert_chunks([low_quality_chunk], "myrepo", "main.go")
+
+    results = store.semantic_search("err", top_k=10, include_low_quality=True)
+    assert len(results) == 1
+    assert results[0]["metadata"]["low_quality"] is True
+
+
+def test_upsert_stores_low_quality_in_sqlite(store):
+    """Verify low_quality is stored in SQLite chunk_file_map."""
+    low_quality_chunk = _make_chunk("err", "var err error", "main.go", low_quality=True)
+    regular_chunk = _make_chunk("FindUser", "func FindUser() {}", "main.go", low_quality=False)
+    store.upsert_chunks([low_quality_chunk, regular_chunk], "myrepo", "main.go")
+
+    # Query SQLite directly to verify
+    row = store._db.execute(
+        "SELECT low_quality FROM chunk_file_map WHERE chunk_id = ?",
+        (low_quality_chunk.id,)
+    ).fetchone()
+    assert row["low_quality"] == 1
+
+    row = store._db.execute(
+        "SELECT low_quality FROM chunk_file_map WHERE chunk_id = ?",
+        (regular_chunk.id,)
+    ).fetchone()
+    assert row["low_quality"] == 0
+
+
+def test_semantic_search_excludes_low_quality_by_default(store):
+    """Low-quality chunks should be excluded by default."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() {}", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("err", "var err error", "main.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "errors.go")
+
+    results = store.semantic_search("variable", top_k=10)
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "FindUser"
+
+
+def test_semantic_search_includes_low_quality_when_flag_set(store):
+    """Low-quality chunks should be included when include_low_quality=True."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() {}", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("err", "var err error", "main.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "errors.go")
+
+    results = store.semantic_search("variable", top_k=10, include_low_quality=True)
+    assert len(results) == 2
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"FindUser", "err"}
+
+
+def test_keyword_search_excludes_low_quality_by_default(store):
+    """Low-quality chunks should be excluded from keyword search by default."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() { /* find user */ }", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("err", "func err() { /* find error */ }", "main.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "errors.go")
+
+    results = store.keyword_search("find", top_k=10)
+    assert len(results) == 1
+    assert results[0]["id"] == regular_chunk.id
+
+
+def test_keyword_search_includes_low_quality_when_flag_set(store):
+    """Low-quality chunks should be included in keyword search when include_low_quality=True."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() { /* find user */ }", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("err", "func err() { /* find error */ }", "main.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "errors.go")
+
+    results = store.keyword_search("find", top_k=10, include_low_quality=True)
+    assert len(results) == 2
+    ids = {r["id"] for r in results}
+    assert ids == {regular_chunk.id, low_quality_chunk.id}
+
+
+def test_hybrid_search_excludes_low_quality_by_default(store):
+    """Low-quality chunks should be excluded from hybrid search by default."""
+    regular_chunk = _make_chunk("ProcessData", "func ProcessData() {}", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("ctx", "var ctx context.Context", "main.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "context.go")
+
+    results = store.hybrid_search("variable", top_k=10)
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "ProcessData"
+
+
+def test_hybrid_search_includes_low_quality_when_flag_set(store):
+    """Low-quality chunks should be included in hybrid search when include_low_quality=True."""
+    regular_chunk = _make_chunk("ProcessData", "func ProcessData() {}", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("ctx", "var ctx context.Context", "main.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "context.go")
+
+    results = store.hybrid_search("variable", top_k=10, include_low_quality=True)
+    assert len(results) == 2
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"ProcessData", "ctx"}
+
+
+def test_include_low_quality_works_with_repo_filter(store):
+    """include_low_quality should work correctly when combined with repo_name filter."""
+    regular_chunk = _make_chunk("Foo", "func Foo() {}", "main.go", low_quality=False)
+    low_quality_chunk = _make_chunk("err", "var err error", "errors.go", low_quality=True)
+    store.upsert_chunks([regular_chunk], "repo_a", "main.go")
+    store.upsert_chunks([low_quality_chunk], "repo_a", "errors.go")
+
+    # Exclude low quality (default)
+    results = store.semantic_search("variable", top_k=10, repo_name="repo_a")
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "Foo"
+
+    # Include low quality
+    results = store.semantic_search("variable", top_k=10, repo_name="repo_a", include_low_quality=True)
+    assert len(results) == 2
+
+
+def test_only_low_quality_chunks_returns_empty_when_excluded(store):
+    """If only low-quality chunks exist, excluding them should return empty results."""
+    low_quality_chunk = _make_chunk("err", "var err error", "main.go", low_quality=True)
+    store.upsert_chunks([low_quality_chunk], "myrepo", "main.go")
+
+    results = store.semantic_search("error", top_k=10)
+    assert len(results) == 0
+
+    results = store.keyword_search("err", top_k=10)
+    assert len(results) == 0
+
+    results = store.hybrid_search("error", top_k=10)
+    assert len(results) == 0
+
+
+def test_include_low_quality_and_include_tests_combined(store):
+    """Both include_low_quality and include_tests should work together."""
+    regular_chunk = _make_chunk("FindUser", "func FindUser() {}", "main.go", is_test=False, low_quality=False)
+    test_chunk = _make_chunk("TestFindUser", "func TestFindUser() {}", "main_test.go", is_test=True, low_quality=False)
+    low_quality_chunk = _make_chunk("err", "var err error", "main.go", is_test=False, low_quality=True)
+    test_low_quality_chunk = _make_chunk("testErr", "var testErr error", "main_test.go", is_test=True, low_quality=True)
+
+    store.upsert_chunks([regular_chunk], "myrepo", "main.go")
+    store.upsert_chunks([test_chunk], "myrepo", "main_test.go")
+    store.upsert_chunks([low_quality_chunk], "myrepo", "errors.go")
+    store.upsert_chunks([test_low_quality_chunk], "myrepo", "errors_test.go")
+
+    # Default: exclude both tests and low quality
+    results = store.semantic_search("function", top_k=10)
+    assert len(results) == 1
+    assert results[0]["metadata"]["name"] == "FindUser"
+
+    # Include tests only
+    results = store.semantic_search("function", top_k=10, include_tests=True)
+    assert len(results) == 2
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"FindUser", "TestFindUser"}
+
+    # Include low quality only
+    results = store.semantic_search("function", top_k=10, include_low_quality=True)
+    assert len(results) == 2
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"FindUser", "err"}
+
+    # Include both
+    results = store.semantic_search("function", top_k=10, include_tests=True, include_low_quality=True)
+    assert len(results) == 4
+    names = {r["metadata"]["name"] for r in results}
+    assert names == {"FindUser", "TestFindUser", "err", "testErr"}

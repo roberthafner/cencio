@@ -97,9 +97,11 @@ class ChunkStore:
             );
 
             CREATE TABLE IF NOT EXISTS chunk_file_map (
-                chunk_id  TEXT NOT NULL,
-                repo_name TEXT NOT NULL,
-                file_path TEXT NOT NULL,
+                chunk_id    TEXT NOT NULL,
+                repo_name   TEXT NOT NULL,
+                file_path   TEXT NOT NULL,
+                is_test     INTEGER NOT NULL DEFAULT 0,
+                low_quality INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (chunk_id)
             );
 
@@ -136,8 +138,8 @@ class ChunkStore:
                 )
                 self._db.execute(
                     "INSERT OR REPLACE INTO chunk_file_map"
-                    "(chunk_id, repo_name, file_path) VALUES (?, ?, ?)",
-                    (chunk.id, repo_name, file_path),
+                    "(chunk_id, repo_name, file_path, is_test, low_quality) VALUES (?, ?, ?, ?, ?)",
+                    (chunk.id, repo_name, file_path, int(chunk.is_test), int(chunk.low_quality)),
                 )
 
             self._collection.upsert(
@@ -152,6 +154,7 @@ class ChunkStore:
                     "start_line": c.start_line,
                     "end_line": c.end_line,
                     "is_test": c.is_test,
+                    "low_quality": c.low_quality,
                 } for c in chunks],
             )
 
@@ -228,6 +231,7 @@ class ChunkStore:
     def semantic_search(
         self, query: str, top_k: int = 10, repo_name: str | None = None,
         include_tests: bool = False,
+        include_low_quality: bool = False,
     ) -> list[dict]:
         count = self._collection.count()
         # When filtering, fetch a larger candidate pool: ChromaDB's HNSW index
@@ -250,6 +254,8 @@ class ChunkStore:
             where_clauses.append({"repo_name": repo_name})
         if not include_tests:
             where_clauses.append({"is_test": False})
+        if not include_low_quality:
+            where_clauses.append({"low_quality": False})
 
         if len(where_clauses) == 1:
             kwargs["where"] = where_clauses[0]
@@ -275,44 +281,32 @@ class ChunkStore:
     def keyword_search(
         self, query: str, top_k: int = 10, repo_name: str | None = None,
         include_tests: bool = False,
+        include_low_quality: bool = False,
     ) -> list[dict]:
         fts_query = _to_fts_query(query)
 
-        # Get chunk IDs to exclude if not including tests
-        excluded_ids: set[str] = set()
-        if not include_tests:
-            # Fetch test chunk IDs from ChromaDB
-            test_results = self._collection.get(
-                where={"is_test": True},
-                include=[],
-            )
-            excluded_ids = set(test_results["ids"])
-
-        # Fetch extra results if we need to filter
-        fetch_limit = top_k * 2 if excluded_ids else top_k
+        # Build SQL query with native filtering via chunk_file_map
+        sql = """
+            SELECT f.chunk_id, f.rank
+            FROM chunks_fts f
+            JOIN chunk_file_map m ON f.chunk_id = m.chunk_id
+            WHERE f.chunks_fts MATCH ?
+        """
+        params: list = [fts_query]
 
         if repo_name is not None:
-            rows = self._db.execute(
-                "SELECT chunk_id, rank FROM chunks_fts"
-                " WHERE chunks_fts MATCH ?"
-                "   AND chunk_id IN"
-                "       (SELECT chunk_id FROM chunk_file_map WHERE repo_name = ?)"
-                " ORDER BY rank LIMIT ?",
-                (fts_query, repo_name, fetch_limit),
-            ).fetchall()
-        else:
-            rows = self._db.execute(
-                "SELECT chunk_id, rank FROM chunks_fts"
-                " WHERE chunks_fts MATCH ? ORDER BY rank LIMIT ?",
-                (fts_query, fetch_limit),
-            ).fetchall()
+            sql += " AND m.repo_name = ?"
+            params.append(repo_name)
+        if not include_tests:
+            sql += " AND m.is_test = 0"
+        if not include_low_quality:
+            sql += " AND m.low_quality = 0"
 
-        results = [
-            {"id": row["chunk_id"], "rank": row["rank"]}
-            for row in rows
-            if row["chunk_id"] not in excluded_ids
-        ]
-        return results[:top_k]
+        sql += " ORDER BY f.rank LIMIT ?"
+        params.append(top_k)
+
+        rows = self._db.execute(sql, params).fetchall()
+        return [{"id": row["chunk_id"], "rank": row["rank"]} for row in rows]
 
     def hybrid_search(
         self,
@@ -321,9 +315,10 @@ class ChunkStore:
         repo_name: str | None = None,
         keyword_weight: float = _RRF_KEYWORD_WEIGHT,
         include_tests: bool = False,
+        include_low_quality: bool = False,
     ) -> list[dict]:
-        semantic = self.semantic_search(query, top_k, repo_name, include_tests)
-        keyword = self.keyword_search(query, top_k, repo_name, include_tests)
+        semantic = self.semantic_search(query, top_k, repo_name, include_tests, include_low_quality)
+        keyword = self.keyword_search(query, top_k, repo_name, include_tests, include_low_quality)
 
         scores: dict[str, float] = {}
         for rank, result in enumerate(semantic):
