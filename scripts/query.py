@@ -82,6 +82,11 @@ def main() -> None:
         "--include-low-quality", action="store_true",
         help="Include low-quality chunks in results (excluded by default)",
     )
+    parser.add_argument(
+        "--keyword-weight", type=float, default=1.0, metavar="W",
+        help="Weight for keyword results in hybrid search (default: 1.0). "
+             "Lower values favor semantic similarity, higher values favor keyword matches.",
+    )
     parser.add_argument("--chroma-path", type=Path, default=_DEFAULT_CHROMA)
     parser.add_argument("--sqlite-path", type=Path, default=_DEFAULT_SQLITE)
     parser.add_argument("--ollama-url", default="http://localhost:11434")
@@ -100,6 +105,7 @@ def main() -> None:
     try:
         if args.mode == "hybrid":
             results = store.hybrid_search(args.query, args.top_k, args.repo,
+                                          keyword_weight=args.keyword_weight,
                                           include_tests=args.include_tests,
                                           include_low_quality=args.include_low_quality)
         elif args.mode == "semantic":

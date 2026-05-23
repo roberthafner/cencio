@@ -108,8 +108,14 @@ Options:
 | `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
 | `--top-k` | `5` | Number of results to return |
 | `--repo` | *(all repos)* | Filter results to a specific repository name |
+<<<<<<< HEAD
 | `--include-tests` | `false` | Include test code chunks in search results. Test files (`*_test.go`) are indexed but excluded from search by default. |
 | `--include-low-quality` | `false` | Include low-quality chunks in search results. Chunks with generic names (e.g., `err`, `ctx`, `i`) are indexed but excluded from search by default. |
+=======
+| `--include-tests` | `false` | Include test code chunks in results (excluded by default) |
+| `--include-low-quality` | `false` | Include low-quality chunks in results (excluded by default) |
+| `--keyword-weight` | `1.0` | Weight for keyword results in hybrid search. Lower values favor semantic similarity, higher values favor keyword matches. |
+>>>>>>> b975fe2 (Add --keyword-weight flag to tune hybrid search ranking**)
 | `--chroma-path` | `data/vector_store/chroma` | ChromaDB storage directory |
 | `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
@@ -135,6 +141,9 @@ python scripts/query.py "test helpers" --include-tests
 
 # Include low-quality chunks (e.g., single-letter names, common identifiers)
 python scripts/query.py "error handling" --include-low-quality
+
+# Favor semantic similarity over keyword matches in hybrid search
+python scripts/query.py "How do I implement a HTTP Handler" --keyword-weight 0.3
 ```
 
 ### Inspecting Chunks
