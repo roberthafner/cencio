@@ -11,7 +11,7 @@ _CHUNK_TYPES = [t.value for t in ChunkType]
 _PROMPT_TEMPLATE = """\
 You are building a search evaluation dataset for a Go codebase RAG system.
 
-Below is a Go code chunk from the gorilla/mux package:
+Below is a Go code chunk from the {repo_name} repository:
 
 Type: {chunk_type}
 Name: {chunk_name}
@@ -22,10 +22,14 @@ File: {file_path}
 ```
 
 Write a single natural-language search query that a developer would type to find \
-this specific piece of code. The query should be:
-- Phrased as something a developer would naturally search for
-- Specific enough to distinguish this chunk from similar ones
-- Based on what the code does or how it is used, not its exact name
+this specific piece of code. The query should:
+- Include specific terms, identifiers, or concepts from the code itself
+- Mention concrete functionality (e.g., "parse JSON response", "validate email format")
+- Reference specific types, error names, or domain concepts when present
+- Avoid generic phrases like "how to import" or "how to use" without specifics
+
+Good example: "function that converts tenant state to orchestration status enum"
+Bad example: "how to convert states in Go"
 
 Respond with only the query. No explanation, no quotes, no trailing punctuation."""
 
@@ -55,6 +59,7 @@ def generate_golden_set(
             meta = chunk["metadata"]
             content = chunk["content"][:2000]
             prompt = _PROMPT_TEMPLATE.format(
+                repo_name=repo_name,
                 chunk_type=meta.get("chunk_type", ""),
                 chunk_name=meta.get("name", ""),
                 file_path=meta.get("file_path", ""),
