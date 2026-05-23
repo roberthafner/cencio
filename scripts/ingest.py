@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from src.embedding.ollama import OllamaEmbeddingFunction
+from src.evaluation.ollama_chat import OllamaChatFunction
 from src.ingestion.indexer import Indexer
 from src.ingestion.repository import GitRepository
 from src.ingestion.store import ChunkStore
@@ -22,7 +23,14 @@ def main() -> None:
     parser.add_argument("--chroma-path", type=Path, default=_DEFAULT_CHROMA)
     parser.add_argument("--sqlite-path", type=Path, default=_DEFAULT_SQLITE)
     parser.add_argument("--ollama-url", default="http://localhost:11434")
-    parser.add_argument("--model", default="nomic-embed-text:v1.5")
+    parser.add_argument("--model", default="nomic-embed-text:v1.5",
+                        help="Ollama embedding model (default: nomic-embed-text:v1.5)")
+    parser.add_argument("--summarize", action="store_true",
+                        help="Generate LLM summaries for chunks lacking documentation")
+    parser.add_argument("--chat-model", default="devstral-small-2:latest",
+                        help="Ollama chat model for summarization (default: devstral-small-2:latest)")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="Print detailed progress including summarization")
     args = parser.parse_args()
 
     config = json.loads(args.config.read_text())
@@ -38,7 +46,16 @@ def main() -> None:
         sqlite_path=args.sqlite_path,
         embedding_fn=embedding_fn,
     )
-    indexer = Indexer(store)
+
+    # Set up chat function for summarization if enabled
+    chat_fn = None
+    if args.summarize:
+        chat_fn = OllamaChatFunction(
+            model=args.chat_model, base_url=args.ollama_url
+        )
+        print(f"Summarization enabled (model: {args.chat_model})")
+
+    indexer = Indexer(store, chat_fn=chat_fn, verbose=args.verbose)
 
     failed: list[str] = []
     try:
