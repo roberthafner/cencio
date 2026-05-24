@@ -31,10 +31,14 @@ def needs_summary(chunk: Chunk) -> bool:
     """Return True if this chunk would benefit from an LLM-generated summary.
 
     Low-quality chunks are skipped since they are excluded from search results.
+    Test chunks are skipped since they are excluded from search by default.
     Only certain chunk types (function, method, struct, interface) are summarized.
     """
     # Don't summarize low-quality chunks - they're excluded from search anyway
     if chunk.low_quality:
+        return False
+    # Don't summarize test chunks - they're excluded from search by default
+    if chunk.is_test:
         return False
     # Only summarize certain chunk types
     if chunk.type not in _SUMMARIZABLE_TYPES:

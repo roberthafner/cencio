@@ -14,6 +14,7 @@ def _make_chunk(
     doc: str = "",
     low_quality: bool = False,
     chunk_type: ChunkType = ChunkType.FUNCTION,
+    is_test: bool = False,
 ) -> Chunk:
     return Chunk(
         id=generate_id(content),
@@ -26,7 +27,7 @@ def _make_chunk(
         end_line=5,
         doc=doc,
         signature=f"func {name}()",
-        is_test=False,
+        is_test=is_test,
         low_quality=low_quality,
     )
 
@@ -87,6 +88,23 @@ class TestNeedsSummary:
         """Low-quality unnamed chunks should be skipped."""
         chunk = _make_chunk(name="", doc="", low_quality=True)
         assert needs_summary(chunk) is False
+
+    # Test chunk filtering tests
+
+    def test_test_chunk_does_not_need_summary(self):
+        """Test chunks should not be summarized."""
+        chunk = _make_chunk(name="TestMyFunc", doc="", is_test=True)
+        assert needs_summary(chunk) is False
+
+    def test_test_chunk_with_no_doc_does_not_need_summary(self):
+        """Test chunks should be skipped even if they have no documentation."""
+        chunk = _make_chunk(name="TestHandler", doc="", is_test=True)
+        assert needs_summary(chunk) is False
+
+    def test_non_test_chunk_can_be_summarized(self):
+        """Non-test chunks should be summarized if they need it."""
+        chunk = _make_chunk(name="MyFunc", doc="", is_test=False)
+        assert needs_summary(chunk) is True
 
     # Chunk type filtering tests
 
@@ -317,4 +335,22 @@ class TestEnrichChunksWithSummaries:
         assert len(result) == 2
         assert result[0].summary == "Summary"  # Regular chunk summarized
         assert result[1].summary == ""  # Low-quality chunk skipped
+        assert call_count == 1  # Only called once for regular chunk
+
+    def test_skips_test_chunks(self):
+        """Test chunks should not be summarized."""
+        regular_chunk = _make_chunk(name="MyFunc", doc="", is_test=False)
+        test_chunk = _make_chunk(name="TestMyFunc", doc="", content="func TestMyFunc() {}", is_test=True)
+
+        call_count = 0
+        def mock_chat_fn(prompt: str) -> str:
+            nonlocal call_count
+            call_count += 1
+            return "Summary"
+
+        result = enrich_chunks_with_summaries([regular_chunk, test_chunk], mock_chat_fn)
+
+        assert len(result) == 2
+        assert result[0].summary == "Summary"  # Regular chunk summarized
+        assert result[1].summary == ""  # Test chunk skipped
         assert call_count == 1  # Only called once for regular chunk

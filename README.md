@@ -108,8 +108,8 @@ Options:
 | `--mode` | `hybrid` | Search mode: `hybrid`, `semantic`, or `keyword` |
 | `--top-k` | `5` | Number of results to return |
 | `--repo` | *(all repos)* | Filter results to a specific repository name |
-| `--include-tests` | `false` | Include test code chunks in results (excluded by default) |
-| `--include-low-quality` | `false` | Include low-quality chunks in results (excluded by default) |
+| `--include-tests` | `false` | Include test code chunks in search results. Test files (`*_test.go`) are indexed but excluded from search by default. |
+| `--include-low-quality` | `false` | Include low-quality chunks in search results. Chunks with generic names (e.g., `err`, `ctx`, `i`) are indexed but excluded from search by default. |
 | `--chroma-path` | `data/vector_store/chroma` | ChromaDB storage directory |
 | `--sqlite-path` | `data/vector_store/index.db` | SQLite database path |
 | `--ollama-url` | `http://localhost:11434` | Ollama server URL |
@@ -155,7 +155,7 @@ At least one filter is required. Filters can be combined (AND logic):
 | `--file STR` | Substring match on file path |
 | `--type TYPE` | Chunk type: `package`, `block`, `function`, `method`, `struct`, `interface`, `const`, `var`, `type_alias` |
 | `--package STR` | Substring match on package name |
-| `--include-low-quality` | Include low-quality chunks (excluded by default) |
+| `--include-low-quality` | Include low-quality chunks. Chunks with generic names are excluded by default. |
 | `--limit N` | Max chunks to display (default: 20) |
 
 Examples:
