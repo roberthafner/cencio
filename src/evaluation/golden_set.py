@@ -2,9 +2,37 @@ import json
 import random
 from pathlib import Path
 
+from tokenizers import Tokenizer
+
 from src.evaluation.ollama_chat import ChatFunction
 from src.ingestion.store import ChunkStore
 from src.models.chunk import ChunkType
+
+# Use the nomic tokenizer for consistent token counting across the codebase.
+# Truncate content in prompts to leave room for the template and response.
+_MAX_CONTENT_TOKENS = 1500
+_tokenizer = Tokenizer.from_pretrained("nomic-ai/nomic-embed-text-v1.5")
+
+
+def _truncate_to_tokens(text: str, max_tokens: int) -> str:
+    """Truncate text to fit within the specified token limit.
+
+    Uses token offsets to preserve original text formatting rather than
+    decoding tokens back to a normalized form.
+    """
+    encoded = _tokenizer.encode(text)
+    if len(encoded.ids) <= max_tokens:
+        return text
+    # Use offsets to find where to cut the original text.
+    # The offsets array includes [CLS] at start and [SEP] at end,
+    # so we look at the token just before our limit.
+    # Subtract 1 for [CLS], and leave room for [SEP] at the end.
+    last_token_idx = max_tokens - 2  # -1 for [CLS], -1 for [SEP]
+    if last_token_idx < 1:
+        return ""
+    end_offset = encoded.offsets[last_token_idx][1]
+    return text[:end_offset]
+
 
 _CHUNK_TYPES = [t.value for t in ChunkType]
 
@@ -57,7 +85,7 @@ def generate_golden_set(
 
         for chunk in selected:
             meta = chunk["metadata"]
-            content = chunk["content"][:2000]
+            content = _truncate_to_tokens(chunk["content"], _MAX_CONTENT_TOKENS)
             prompt = _PROMPT_TEMPLATE.format(
                 repo_name=repo_name,
                 chunk_type=meta.get("chunk_type", ""),

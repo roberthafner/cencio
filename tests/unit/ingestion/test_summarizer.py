@@ -201,8 +201,9 @@ class TestGenerateSummary:
         assert result == ""
 
     def test_generate_summary_truncates_long_content(self):
-        """generate_summary should truncate content longer than 1500 chars."""
-        long_content = "func LongFunc() {\n" + "x := 1\n" * 500 + "}"
+        """generate_summary should truncate content longer than 1500 tokens."""
+        # Create content that is definitely more than 1500 tokens
+        long_content = "func LongFunc() {\n" + "x := 1\n" * 1000 + "}"
         chunk = _make_chunk(content=long_content)
 
         captured_prompt = None
@@ -213,10 +214,10 @@ class TestGenerateSummary:
 
         generate_summary(chunk, mock_chat_fn)
 
-        # The content in the prompt should be truncated
-        assert len(long_content) > 1500
+        # The full content should not be in the prompt (it was truncated)
         assert long_content not in captured_prompt
-        assert long_content[:1500] in captured_prompt
+        # But the prompt should contain the start of the content (preserving case)
+        assert "func LongFunc()" in captured_prompt
 
 
 # ------------------------------------------------------------------

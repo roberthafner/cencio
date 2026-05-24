@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.embedding.ollama import EmbeddingFunction, OllamaEmbeddingFunction
+from src.embedding.ollama import EmbeddingFunction, OllamaEmbeddingFunction, _DEFAULT_MAX_TOKENS
 
 
 def _mock_urlopen(embeddings: list[list[float]]):
@@ -150,18 +150,21 @@ def test_custom_batch_size():
     assert fn._batch_size == 8
 
 
-def test_default_max_chars():
+def test_default_max_tokens():
     fn = OllamaEmbeddingFunction()
-    assert fn._max_chars == 2000
+    assert fn._max_tokens == _DEFAULT_MAX_TOKENS
 
 
-def test_inputs_truncated_to_max_chars():
-    fn = OllamaEmbeddingFunction(max_chars=5)
+def test_inputs_truncated_to_max_tokens():
+    fn = OllamaEmbeddingFunction(max_tokens=5)
     mock = MagicMock(return_value=_mock_urlopen([[0.1]]))
     with patch("urllib.request.urlopen", mock):
-        fn(["hello world"])
+        fn(["hello world this is a longer text"])
     req = mock.call_args[0][0]
-    assert json.loads(req.data)["input"] == ["hello"]
+    payload = json.loads(req.data)
+    # The tokenizer will truncate to 5 tokens and decode back
+    # Exact output depends on tokenizer, but it should be shorter than original
+    assert len(payload["input"][0]) < len("hello world this is a longer text")
 
 
 def test_single_batch_when_inputs_fit():
@@ -209,3 +212,19 @@ def test_batch_payloads_contain_correct_inputs():
 def test_satisfies_embedding_function_protocol():
     fn = OllamaEmbeddingFunction()
     assert isinstance(fn, EmbeddingFunction)
+
+
+def test_count_tokens_returns_token_count():
+    fn = OllamaEmbeddingFunction()
+    # "hello world" should tokenize to a small number of tokens
+    count = fn.count_tokens("hello world")
+    assert isinstance(count, int)
+    assert count > 0
+    assert count < 10  # Should be just a few tokens
+
+
+def test_count_tokens_longer_text_has_more_tokens():
+    fn = OllamaEmbeddingFunction()
+    short_count = fn.count_tokens("hello")
+    long_count = fn.count_tokens("hello world this is a much longer piece of text")
+    assert long_count > short_count
