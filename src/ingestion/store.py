@@ -22,10 +22,12 @@ _STOP_WORDS = frozenset({
 
 
 def _build_embedding_text(chunk: Chunk) -> str:
-    """Build enriched text for embedding that includes doc and signature."""
+    """Build enriched text for embedding that includes doc, summary, and signature."""
     parts = []
     if chunk.doc:
         parts.append(chunk.doc.strip())
+    if chunk.summary:
+        parts.append(chunk.summary.strip())
     if chunk.signature:
         parts.append(chunk.signature.strip())
     parts.append(chunk.content)
@@ -93,7 +95,8 @@ class ChunkStore:
                 name,
                 package_name,
                 doc,
-                signature
+                signature,
+                summary
             );
 
             CREATE TABLE IF NOT EXISTS chunk_file_map (
@@ -131,10 +134,10 @@ class ChunkStore:
                 )
                 self._db.execute(
                     "INSERT INTO chunks_fts"
-                    "(chunk_id, content, name, package_name, doc, signature)"
-                    " VALUES (?, ?, ?, ?, ?, ?)",
+                    "(chunk_id, content, name, package_name, doc, signature, summary)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?)",
                     (chunk.id, chunk.content, chunk.name,
-                     chunk.package_name, chunk.doc, chunk.signature),
+                     chunk.package_name, chunk.doc, chunk.signature, chunk.summary),
                 )
                 self._db.execute(
                     "INSERT OR REPLACE INTO chunk_file_map"

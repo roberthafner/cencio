@@ -1,10 +1,20 @@
 """LLM-based code summarization for improving chunk retrieval quality."""
 
 from src.evaluation.ollama_chat import ChatFunction
-from src.models.chunk import Chunk
+from src.models.chunk import Chunk, ChunkType
+
+# Chunk types that benefit from LLM-generated summaries
+_SUMMARIZABLE_TYPES = frozenset({
+    ChunkType.FUNCTION,
+    ChunkType.METHOD,
+    ChunkType.STRUCT,
+    ChunkType.INTERFACE,
+})
 
 _SUMMARY_PROMPT = """\
-Summarize this Go code in 1-2 sentences. Focus on what it does and its purpose, not implementation details.
+Summarize this Go code for a semantic search index. Write 1-2 sentences that:
+1. Describe what this code does and when you would use it
+2. Include common terms a developer might search for
 
 Type: {chunk_type}
 Name: {chunk_name}
@@ -18,7 +28,17 @@ Respond with only the summary. No quotes, no explanation, no preamble."""
 
 
 def needs_summary(chunk: Chunk) -> bool:
-    """Return True if this chunk would benefit from an LLM-generated summary."""
+    """Return True if this chunk would benefit from an LLM-generated summary.
+
+    Low-quality chunks are skipped since they are excluded from search results.
+    Only certain chunk types (function, method, struct, interface) are summarized.
+    """
+    # Don't summarize low-quality chunks - they're excluded from search anyway
+    if chunk.low_quality:
+        return False
+    # Only summarize certain chunk types
+    if chunk.type not in _SUMMARIZABLE_TYPES:
+        return False
     # Unnamed chunks (blocks)
     if not chunk.name:
         return True
@@ -53,17 +73,15 @@ def enrich_chunks_with_summaries(
 ) -> list[Chunk]:
     """Add LLM-generated summaries to chunks that need them.
 
-    Summaries are appended to the chunk's doc field.
+    Summaries are stored in the chunk's summary field, separate from the
+    original doc field.
     """
     enriched = []
     for chunk in chunks:
         if needs_summary(chunk):
             summary = generate_summary(chunk, chat_fn)
             if summary:
-                if chunk.doc:
-                    chunk.doc = f"{chunk.doc.strip()}\n\n{summary}"
-                else:
-                    chunk.doc = summary
+                chunk.summary = summary
                 if verbose:
                     name = chunk.name or "(unnamed)"
                     print(f"    + summarized {chunk.type.value} '{name}'")

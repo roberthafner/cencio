@@ -22,12 +22,16 @@ def _sqlite_extras(db: sqlite3.Connection, chunk_ids: list[str]) -> dict[str, di
         return {}
     placeholders = ",".join("?" * len(chunk_ids))
     rows = db.execute(
-        f"SELECT chunk_id, doc, signature FROM chunks_fts"
+        f"SELECT chunk_id, doc, signature, summary FROM chunks_fts"
         f" WHERE chunk_id IN ({placeholders})",
         chunk_ids,
     ).fetchall()
     return {
-        row["chunk_id"]: {"doc": row["doc"] or "", "signature": row["signature"] or ""}
+        row["chunk_id"]: {
+            "doc": row["doc"] or "",
+            "signature": row["signature"] or "",
+            "summary": row["summary"] or "",
+        }
         for row in rows
     }
 
@@ -62,6 +66,7 @@ def _print_chunk(
     end = meta.get("end_line", "?")
     doc = extra.get("doc", "").strip()
     signature = extra.get("signature", "").strip()
+    summary = extra.get("summary", "").strip()
 
     print(_HEAVY)
     header = f" {index}/{total}  {chunk_type}  {name}"
@@ -88,6 +93,12 @@ def _print_chunk(
     else:
         print("  doc       : (empty)")
     print(f"  signature : {signature or '(empty)'}")
+    if summary:
+        print("  summary   :")
+        for line in summary.splitlines():
+            print(f"    {line}")
+    else:
+        print("  summary   : (empty)")
     print()
 
 

@@ -626,3 +626,56 @@ def test_include_low_quality_and_include_tests_combined(store):
     assert len(results) == 4
     names = {r["metadata"]["name"] for r in results}
     assert names == {"FindUser", "TestFindUser", "err", "testErr"}
+
+
+# ------------------------------------------------------------------
+# summary field tests
+# ------------------------------------------------------------------
+
+def test_upsert_stores_summary_in_sqlite(store):
+    """Verify summary is stored in SQLite chunks_fts table."""
+    chunk = _make_chunk("MyFunc", "func MyFunc() {}")
+    chunk.summary = "This function does something useful for search."
+    store.upsert_chunks([chunk], "myrepo", "main.go")
+
+    # Query SQLite directly to verify
+    row = store._db.execute(
+        "SELECT summary FROM chunks_fts WHERE chunk_id = ?",
+        (chunk.id,)
+    ).fetchone()
+    assert row["summary"] == "This function does something useful for search."
+
+
+def test_upsert_stores_empty_summary_in_sqlite(store):
+    """Verify empty summary is stored correctly."""
+    chunk = _make_chunk("MyFunc", "func MyFunc() {}")
+    # summary defaults to ""
+    store.upsert_chunks([chunk], "myrepo", "main.go")
+
+    row = store._db.execute(
+        "SELECT summary FROM chunks_fts WHERE chunk_id = ?",
+        (chunk.id,)
+    ).fetchone()
+    assert row["summary"] == ""
+
+
+def test_keyword_search_matches_summary(store):
+    """Keyword search should find matches in the summary field."""
+    chunk = _make_chunk("MyFunc", "func MyFunc() {}")
+    chunk.summary = "Handles HTTP requests and authentication tokens."
+    store.upsert_chunks([chunk], "myrepo", "main.go")
+
+    # Search for a term only in the summary
+    results = store.keyword_search("authentication", top_k=10)
+    assert len(results) == 1
+    assert results[0]["id"] == chunk.id
+
+
+def test_keyword_search_no_match_without_summary(store):
+    """Keyword search should not find term if not in content, doc, or summary."""
+    chunk = _make_chunk("MyFunc", "func MyFunc() {}")
+    # No summary, term not in content or doc
+    store.upsert_chunks([chunk], "myrepo", "main.go")
+
+    results = store.keyword_search("authentication", top_k=10)
+    assert len(results) == 0

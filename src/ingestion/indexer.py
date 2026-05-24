@@ -83,16 +83,16 @@ class Indexer:
             abs_path = repo.clone_path / rel_path
             chunks = parse_file(str(abs_path))
 
+            # Mark low-quality chunks first (before summarization)
+            for chunk in chunks:
+                chunk.low_quality = is_low_quality_chunk(
+                    chunk.name, chunk.type.value, chunk.doc
+                )
+
             # Enrich chunks with LLM summaries if chat function is available
             if self._chat_fn is not None:
                 chunks = enrich_chunks_with_summaries(
                     chunks, self._chat_fn, verbose=self._verbose
-                )
-
-            # Mark low-quality chunks
-            for chunk in chunks:
-                chunk.low_quality = is_low_quality_chunk(
-                    chunk.name, chunk.type.value, chunk.doc
                 )
 
             self._store.upsert_chunks(chunks, repo.name, rel_path)

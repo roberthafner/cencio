@@ -82,6 +82,10 @@ class Chunk:
     # Extensible metadata for additional information.
     metadata: Dict[str, str] = field(default_factory=dict)
 
+    # LLM-generated summary for improving semantic search discoverability.
+    # This is separate from `doc` to preserve original human-written documentation.
+    summary: str = ""
+
     # Timestamp of when the chunk was created/parsed.
     created_at: datetime.datetime = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))
 
