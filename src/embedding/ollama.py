@@ -1,6 +1,12 @@
 import json
+import os
 import urllib.request
+from pathlib import Path
 from typing import Protocol, runtime_checkable
+
+# Suppress HF Hub authentication warnings before importing tokenizers.
+# HF_HUB_DISABLE_IMPLICIT_TOKEN prevents the "unauthenticated requests" warning.
+os.environ.setdefault("HF_HUB_DISABLE_IMPLICIT_TOKEN", "1")
 
 from tokenizers import Tokenizer
 
